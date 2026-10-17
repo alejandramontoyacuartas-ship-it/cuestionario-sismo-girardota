@@ -47,6 +47,20 @@
   .imgop.ok{border-color:var(--lima)} .imgop.ok .letra{background:var(--lima);color:#0b2e24}
   .imgop.mal{border-color:var(--rojo)} .imgop.mal .letra{background:var(--rojo)}
   .revelado .imgop .nota{display:block}
+  .imgop.sel{border-color:var(--verde);box-shadow:0 0 0 3px var(--verde)}
+  .imgop.sel .letra{background:var(--lima);color:#0b2e24}
+  .imgop.sel::after{content:"✔";position:absolute;top:6px;right:8px;font-size:22px;font-weight:700;color:#fff;
+    background:var(--verde);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+  .imgop.falto{border-color:var(--naranja);border-style:dashed}
+  .grid.g3{grid-template-columns:repeat(3,1fr)}
+  .op{width:100%;text-align:left;font:inherit;font-size:18px;padding:13px 14px;border-radius:10px;
+    border:2px solid var(--borde);background:#fff;color:var(--texto);cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+  .op b{flex:0 0 26px;height:26px;border-radius:50%;background:var(--verde);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-size:15px}
+  .op:hover:not(:disabled){border-color:var(--verde)}
+  .op:disabled{cursor:default}
+  .op.ok{border-color:var(--lima);background:#eef8e6} .op.ok b{background:var(--lima);color:#0b2e24}
+  .op.mal{border-color:var(--rojo);background:#fdeeee} .op.mal b{background:var(--rojo)}
 
   /* semáforo */
   .sem{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
@@ -151,101 +165,62 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-/* Tipos:
-   img   → elegir UNA foto entre varias (única respuesta)
-   sem   → ver una foto y elegir UN color del semáforo (única respuesta)
-   multi → selección múltiple: marcar TODAS las correctas (puntaje parcial)
-   Fotos: visitas técnicas del sismo en Girardota, recortadas sin datos de ubicación. */
-const PREGUNTAS = [
-  { tema:"Fisura vs. grieta", tipo:"img", pts:6,
-    q:"Después del temblor, don Jorge encontró estas cuatro afectaciones en paredes de su casa. Solo una la puede resanar él mismo y quedarse vigilándola, sin esperar visita técnica. ¿Cuál?",
-    ops:[ {img:"img/afec66.jpg", nota:"Grieta abierta que atraviesa la tapia: revisión técnica"},
-          {img:"img/afec82.jpg", nota:"Fisura en el revoque, sin profundidad: resanar y vigilar"},
-          {img:"img/afec72.jpg", nota:"Grietas en las uniones de muros de tapia: uso restringido"},
-          {img:"img/afec81.jpg", nota:"Grieta junto a un cielo raso caído: revisión técnica"} ],
-    ok:1, exp:"La fisura va solo por el pañete o la pintura y no atraviesa el muro. Las otras comprometen el muro o la cubierta y requieren revisión técnica." },
+/* BANCO DE PREGUNTAS — todas con fotos reales de las visitas del sismo en Girardota
+   (recortadas sin datos de ubicación). A cada persona le salen al azar:
+     10 de respuesta única (6 puntos c/u) + 5 de selección múltiple con fotos (8 puntos c/u) = 100.
+   Tipos:
+     img      → elegir UNA foto entre varias
+     sem      → ver una foto y elegir UN color del semáforo
+     foto     → ver una foto y elegir UNA respuesta
+     imgmulti → marcar TODAS las fotos que cumplen (puntaje parcial: correctas − incorrectas) */
+const UNICAS = [
+  { id:"u01", tema:"Fisura vs. grieta", tipo:"img",
+    q:"Después del temblor, don Jorge encontró estas afectaciones en paredes de su casa. Solo una la puede resanar él mismo y quedarse vigilándola, sin esperar visita técnica. ¿Cuál?",
+    ops:[ {img:"img/afec82.jpg", nota:"Fisura en el revoque, sin profundidad: resanar y vigilar"},
+          {img:"img/afec66.jpg", nota:"Grieta abierta que atraviesa la tapia"},
+          {img:"img/afec72.jpg", nota:"Grietas en las uniones de muros de tapia"},
+          {img:"img/afec113a.jpg", nota:"Grietas en muro y cubierta de tapia: requiere visita"} ],
+    ok:0, exp:"La fisura va solo por el pañete o la pintura y no atraviesa el muro. Las otras comprometen el muro o la cubierta." },
 
-  { tema:"Grieta que compromete el muro", tipo:"img", pts:6,
-    q:"Las cuatro paredes quedaron con afectaciones tras el sismo. En tres, el daño es superficial; en una, la afectación ya compromete el muro. ¿Cuál NO se debe limitar a resanar?",
-    ops:[ {img:"img/afec64.jpg", nota:"Fisuras superficiales en el revoque: sin riesgo"},
-          {img:"img/afec50.jpg", nota:"Afectación irregular poco profunda: sin riesgo, vigilar"},
-          {img:"img/afec66.jpg", nota:"Grieta abierta, se ve la sombra y atraviesa la tapia"},
-          {img:"img/afec82.jpg", nota:"Fisura en el revoque: resanar y vigilar"} ],
-    ok:2, exp:"Una grieta está abierta, se ve la sombra y atraviesa el muro o corre por columnas, vigas o uniones. Resanarla solo la esconde: necesita revisión técnica." },
+  { id:"u02", tema:"Grieta que compromete el muro", tipo:"img",
+    q:"Tres de estas afectaciones son superficiales y una ya compromete el muro. ¿Cuál NO se debe limitar a resanar?",
+    ops:[ {img:"img/afec13.jpg", nota:"Fisuras en juntas de un edificio confinado: sin riesgo"},
+          {img:"img/afec34.jpg", nota:"Fisura de revoque bajo la cubierta: sin riesgo"},
+          {img:"img/afec113b.jpg", nota:"Grieta abierta que baja por la tapia hasta el piso"},
+          {img:"img/afec64.jpg", nota:"Fisuras superficiales en zonas comunes"} ],
+    ok:2, exp:"Una grieta abierta, que se ve con sombra y recorre el muro de arriba abajo, necesita revisión técnica: resanarla solo la esconde." },
 
-  { tema:"Cómo leer una grieta", tipo:"multi", pts:8,
-    q:"Según lo visto en la charla, ¿cuáles de estas afirmaciones sobre cómo leer una grieta son CIERTAS?",
-    ops:[ {t:"Una grieta diagonal o en forma de X indica que la empujó el temblor.", ok:true},
-          {t:"El ancho es lo único que define si una grieta es peligrosa.", ok:false},
-          {t:"Si un lado de la grieta quedó más afuera que el otro (escalón), eso pesa más que el ancho.", ok:true},
-          {t:"Si la grieta ya existía antes del temblor, no hace falta vigilarla.", ok:false},
-          {t:"Una grieta delgada que cada semana está más larga necesita atención.", ok:true},
-          {t:"Si la grieta se ve por el otro lado del muro, es porque lo atraviesa.", ok:true} ],
-    exp:"El técnico mira ancho, dirección, si atraviesa el muro, si tiene escalón y si está creciendo. El escalón y el crecimiento pesan más que el ancho, y las grietas viejas también se vigilan." },
-
-  { tema:"Sistema constructivo (tapia)", tipo:"img", pts:6,
+  { id:"u03", tema:"Sistema constructivo", tipo:"img",
     q:"Las tres sintieron el mismo sismo. ¿En cuál los muros pierden resistencia cuando se humedecen y la cubierta suele quedar apoyada sin anclaje?",
-    ops:[ {img:"img/edu26.jpg", nota:"Mampostería confinada (columnas y vigas): menos vulnerable"},
+    ops:[ {img:"img/edu26.jpg", nota:"Mampostería confinada (columnas y vigas)"},
           {img:"img/afec70.jpg", nota:"Tapia: muy alta vulnerabilidad"},
-          {img:"img/inf6.jpg", nota:"Ladrillo con estructura: menos vulnerable"} ],
-    ok:1, exp:"Es la casa de TAPIA: tierra pesada que se debilita con la humedad, con el techo apoyado sin anclar. 7 de las 12 casas en estado crítico en Girardota eran de tapia." },
+          {img:"img/inf6.jpg", nota:"Ladrillo con estructura"} ],
+    ok:1, exp:"Es la tapia: tierra pesada que se debilita con la humedad. 7 de las 12 casas en estado crítico en Girardota eran de tapia." },
 
-  { tema:"Por qué los daños son distintos", tipo:"multi", pts:8,
-    q:"El mismo temblor dejó casas vecinas con daños muy distintos. ¿Cuáles afirmaciones lo explican correctamente?",
-    ops:[ {t:"Como el epicentro fue en el Chocó, a más de 100 km de profundidad, el sismo no podía causar daños en Girardota.", ok:false},
-          {t:"Una casa con goteras y humedad de años puede dañarse más con el mismo temblor.", ok:true},
-          {t:"Una ampliación sin amarre a la construcción original es un punto débil.", ok:true},
-          {t:"Una casa de ladrillo siempre resiste, tenga o no columnas y vigas.", ok:false},
-          {t:"Los cortes, rellenos y el agua lluvia en la ladera influyen en el daño.", ok:true},
-          {t:"Si dos casas sintieron el mismo temblor, el daño depende solo de qué tan fuerte fue.", ok:false} ],
-    exp:"Influyen cómo se construyó, dónde está parada y cómo se ha cuidado. Aunque fue lejos y profundo, la energía viajó hasta el Valle de Aburrá. El ladrillo apilado sin columnas ni vigas tiene alta vulnerabilidad." },
-
-  { tema:"Terreno y ladera", tipo:"img", pts:6,
+  { id:"u04", tema:"Terreno y ladera", tipo:"img",
     q:"En uno de estos casos, el técnico advirtió que reforzar los muros no basta si no se controla lo que pasa por fuera de la construcción. ¿Cuál?",
-    ops:[ {img:"img/inf6.jpg", nota:"Edificio en terreno plano, zona urbana"},
-          {img:"img/edu26.jpg", nota:"Edificio con estructura, en terreno estable"},
+    ops:[ {img:"img/inf6.jpg", nota:"Edificio en terreno plano"},
+          {img:"img/edu26.jpg", nota:"Edificio con estructura, terreno estable"},
           {img:"img/afec74.jpg", nota:"Vivienda en alta pendiente: el terreno también se revisa"} ],
-    ok:2, exp:"En ladera, los cortes, los rellenos y el agua lluvia que se mete al terreno pueden mover la casa. Por eso, en la visita, el técnico también mira alrededor." },
+    ok:2, exp:"En ladera, los cortes, los rellenos y el agua lluvia pueden mover la casa. Por eso el técnico también mira alrededor." },
 
-  { tema:"Humedad y agua", tipo:"img", pts:6,
+  { id:"u05", tema:"Humedad y agua", tipo:"img",
     q:"En una de estas paredes el daño no se soluciona resanando ni reforzando el muro, porque la causa sigue actuando todos los días. ¿Cuál?",
-    ops:[ {img:"img/afec82.jpg", nota:"Fisura seca en el revoque"},
+    ops:[ {img:"img/afec50.jpg", nota:"Afectación irregular poco profunda"},
           {img:"img/inf4.jpg", nota:"Humedad junto a un bajante: pañete inflado y descascarado"},
-          {img:"img/afec72.jpg", nota:"Grietas en uniones de muros de tapia"},
-          {img:"img/afec64.jpg", nota:"Fisuras superficiales sin humedad"} ],
-    ok:1, exp:"El agua debilita muros y losas; muchas veces el temblor solo suelta lo que la humedad ya había dañado. Canoas y bajantes sanos, que no descarguen al pie del muro." },
+          {img:"img/afec91.jpg", nota:"Grieta en muro divisorio"},
+          {img:"img/afec64.jpg", nota:"Fisuras superficiales"} ],
+    ok:1, exp:"El agua sigue entrando: primero se arregla el bajante y la humedad; si no, cualquier resane se vuelve a dañar." },
 
-  { tema:"Semáforo: verde", tipo:"sem", pts:6, img:"img/afec23.jpg",
-    q:"Apartamento en el centro: las afectaciones siguen la unión entre el muro de ladrillo y la viga; las columnas no muestran daño y nada se ve por el otro lado del muro. Según la metodología unificada, ¿qué color corresponde?",
-    ok:"v", exp:"VERDE: se puede habitar. Las fisuras están en la unión muro-viga y la estructura está sana: se resana y se vigila. En Girardota 33 casas quedaron en verde." },
-
-  { tema:"Semáforo: naranja", tipo:"sem", pts:6, img:"img/afec72.jpg",
-    q:"Casa de tapia en una vereda: grietas abiertas donde se unen los muros; el techo sigue en su sitio y los muros no están inclinados. Vive una adulta mayor. ¿Qué color corresponde?",
-    ok:"n", exp:"NARANJA (en el país se llama amarillo): uso restringido. No usar la parte dañada y reforzar pronto; aquí se recomendó confinar con columnas y vigas. No es rojo porque no hay riesgo inminente de colapso." },
-
-  { tema:"Semáforo: rojo", tipo:"sem", pts:6, img:"img/afec98.jpg",
-    q:"Casa de tapia: varias vigas de madera de la cubierta están descompuestas por la humedad y se apoyan directamente sobre la tapia; algunas piezas ya cedieron. ¿Qué color corresponde?",
-    ok:"r", exp:"ROJO: crítico, no entrar a esa zona por riesgo de colapso de la cubierta. Ojo: el rojo NO es una orden de demoler. Se recomendó no usar la zona y cambiar la cubierta." },
-
-  { tema:"Señales de peligro", tipo:"multi", pts:8,
-    q:"¿En cuáles de estas situaciones lo correcto es SALIR de inmediato con la familia y llamar, sin quedarse a medir?",
-    ops:[ {t:"Un muro que se ve inclinado o barrigón.", ok:true},
-          {t:"Una fisura delgada que no ha crecido en tres semanas.", ok:false},
-          {t:"Un muro que quedó despegado del techo.", ok:true},
-          {t:"Pintura descascarada por humedad, sin grietas en el muro.", ok:false},
-          {t:"Grietas en el patio y un suelo que se está corriendo.", ok:true},
-          {t:"Una grieta con escalón que crece día a día.", ok:true} ],
-    exp:"Señales de peligro: muro inclinado o barrigón, grietas en X, columna o viga partida, grieta con escalón, grieta que crece, techo que se hunde o cruje, muro despegado del techo y suelo que se corre." },
-
-  { tema:"Cuándo evacuar", tipo:"img", pts:6,
-    q:"Doña Rosa ve estos cuatro daños en su casa mientras espera al técnico. ¿Cuál la obliga a sacar ya a la familia de esa zona?",
+  { id:"u06", tema:"Cuándo evacuar", tipo:"img",
+    q:"Doña Rosa ve estos daños en su casa mientras espera al técnico. ¿Cuál la obliga a sacar ya a la familia de esa zona?",
     ops:[ {img:"img/afec82.jpg", nota:"Fisura: resanar y vigilar"},
-          {img:"img/afec72.jpg", nota:"Grietas en uniones de tapia: restringir uso, reforzar"},
-          {img:"img/afec37b.jpg", nota:"Techo que se rompe y se hunde: salir y llamar"},
-          {img:"img/afec64.jpg", nota:"Fisuras superficiales: vigilar"} ],
-    ok:2, exp:"Un techo que se hunde o se rompe es señal de peligro inmediato: salga, quédese afuera y llame al 123 o a Gestión del Riesgo. Las grietas de tapia exigen restringir y reforzar, pero no evacuación inmediata." },
+          {img:"img/afec72.jpg", nota:"Grietas en uniones de tapia: restringir y reforzar"},
+          {img:"img/afec37b.jpg", nota:"Cielo raso y cubierta que se rompen y ceden"},
+          {img:"img/afec10.jpg", nota:"Losa sin confinamiento: restringir el uso"} ],
+    ok:2, exp:"Un techo que se rompe o se hunde es señal de peligro inmediato: salir, quedarse afuera y llamar. Las otras exigen restringir o vigilar." },
 
-  { tema:"Causa previa al sismo", tipo:"img", pts:6,
+  { id:"u07", tema:"Causa previa al sismo", tipo:"img",
     q:"La familia culpó al sismo, pero el técnico concluyó que la causa principal venía de años atrás y que el temblor solo la destapó. ¿En cuál de estos casos?",
     ops:[ {img:"img/afec50.jpg", nota:"Afectación irregular reciente, poco profunda"},
           {img:"img/afec81.jpg", nota:"Cielo raso caído por un techo de tapia sin mantenimiento"},
@@ -253,41 +228,171 @@ const PREGUNTAS = [
           {img:"img/afec23.jpg", nota:"Fisuras en la unión muro-viga"} ],
     ok:1, exp:"El cielo raso se cayó por falta de mantenimiento del techo. Decir la verdad sobre la causa define quién repara y qué ruta de apoyo aplica." },
 
-  { tema:"Cuidados de la casa", tipo:"multi", pts:8,
-    q:"Su casa quedó con una grieta y está en ladera. ¿Cuáles de estas acciones AYUDAN a que la casa aguante?",
-    ops:[ {t:"Marcar las puntas de la grieta con lápiz y fecha, y tomarle foto cada semana.", ok:true},
-          {t:"Rellenar la grieta con cemento de una vez, para que no se note si sigue creciendo.", ok:false},
-          {t:"Revisar que canoas y bajantes no descarguen el agua al pie del muro.", ok:true},
-          {t:"Hacer un corte pequeño en la ladera detrás de la casa para ganar espacio.", ok:false},
-          {t:"Construir un segundo piso sobre los muros de tapia, si se usan buenos materiales.", ok:false},
-          {t:"Anclar la madera del techo al muro y mantener las tejas en su sitio.", ok:true},
-          {t:"Acordar en familia un punto de encuentro y tener un kit listo.", ok:true} ],
-    exp:"Marcar y vigilar la grieta, sacar el agua lluvia, cuidar el techo y preparar a la familia. No cortar ni rellenar el terreno sin asesoría, y ampliar solo bien amarrado, con licencia y norma NSR-10." },
+  { id:"u08", tema:"Riesgo para adultos mayores", tipo:"img",
+    q:"En la casa de una señora de 75 años que vive sola, el técnico dijo «no hay riesgo estructural, pero sí hay riesgo». ¿Cuál foto corresponde a ese caso?",
+    ops:[ {img:"img/afec26.jpg", nota:"Baldosas levantadas: riesgo de caída de la persona"},
+          {img:"img/afec98.jpg", nota:"Cubierta deteriorada: riesgo de colapso"},
+          {img:"img/afec66.jpg", nota:"Grieta estructural en tapia"},
+          {img:"img/afec37b.jpg", nota:"Techo que cede"} ],
+    ok:0, exp:"Las baldosas levantadas no tumban la casa, pero pueden hacer caer a una persona mayor. Se recomendó revoque y reorganizar las baldosas." },
 
-  { tema:"Ruta después del reporte", tipo:"multi", pts:8,
-    q:"Sobre lo que pasa después de reportar un daño, ¿cuáles afirmaciones son CIERTAS?",
-    ops:[ {t:"Se atiende primero lo grave y donde viven niños, adultos mayores o personas con discapacidad.", ok:true},
-          {t:"Si la casa queda en rojo, la Alcaldía ordena demolerla.", ok:false},
-          {t:"La revisión rápida (fase 1) pone un color provisional, no definitivo.", ok:true},
-          {t:"Las casas en amarillo y rojo pasan a una revisión detallada (fase 2).", ok:true},
-          {t:"Para recibir apoyo no hace falta estar en el Registro Único de Damnificados (RUD).", ok:false},
-          {t:"Al reportar, conviene enviar fotos de cerca y de lejos.", ok:true} ],
-    exp:"La UNGRD fija tres fases: revisión rápida (color provisional), revisión detallada para amarillas y rojas, y panel de expertos. El rojo no es orden de demoler. El apoyo exige estar en el RUD." }
+  { id:"u09", tema:"Semáforo: verde", tipo:"sem", img:"img/afec23.jpg",
+    q:"Apartamento en el centro: las afectaciones siguen la unión entre el muro de ladrillo y la viga; las columnas no muestran daño y nada se ve por el otro lado del muro. ¿Qué color corresponde?",
+    ok:"v", exp:"VERDE: se puede habitar. La estructura está sana; se resana y se vigila. En Girardota 33 casas quedaron en verde." },
+
+  { id:"u10", tema:"Semáforo: naranja", tipo:"sem", img:"img/afec72.jpg",
+    q:"Casa de tapia en una vereda: grietas abiertas donde se unen los muros; el techo sigue en su sitio y los muros no están inclinados. Vive una adulta mayor. ¿Qué color corresponde?",
+    ok:"n", exp:"NARANJA (amarillo en el país): uso restringido. No usar la parte dañada y reforzar pronto, confinando con columnas y vigas. No hay riesgo inminente de colapso." },
+
+  { id:"u11", tema:"Semáforo: rojo", tipo:"sem", img:"img/afec98.jpg",
+    q:"Casa de tapia: varias vigas de madera de la cubierta están descompuestas por la humedad y se apoyan directamente sobre la tapia; algunas piezas ya cedieron. ¿Qué color corresponde?",
+    ok:"r", exp:"ROJO: crítico, no entrar a esa zona. Ojo: el rojo NO es una orden de demoler. Se recomendó no usar la zona y cambiar la cubierta." },
+
+  { id:"u12", tema:"Semáforo: losa sin confinar", tipo:"sem", img:"img/afec10.jpg",
+    q:"Local comercial: una losa intermedia, construida sin columnas ni vigas que la confinen, quedó con grietas en varias direcciones; debajo guardan motos. Las columnas principales están bien. ¿Qué color corresponde a esa zona?",
+    ok:"n", exp:"NARANJA: uso restringido de la zona de la losa. No se puede caminar encima ni usar la parte de abajo hasta reforzarla; otro sismo fuerte podría tumbarla." },
+
+  { id:"u13", tema:"Semáforo: edificio confinado", tipo:"sem", img:"img/afec13.jpg",
+    q:"Edificio de varios pisos: fisuras en las juntas entre columnas y muros y en los marcos de ventanas; algunas son antiguas y se abrieron con el sismo. Columnas y vigas sin daño. ¿Qué color corresponde?",
+    ok:"v", exp:"VERDE: sin riesgo habitacional. Las fisuras están en la mampostería, no en la estructura. Se recomienda reparar los muros y vigilar." },
+
+  { id:"u14", tema:"Semáforo: tapia deformada", tipo:"sem", img:"img/afec55.jpg",
+    q:"Casa de tapia en una vereda: por fuera se ve bien, pero por dentro los muros perdieron su forma y se ven abombados. Viven 4 personas. ¿Qué color corresponde?",
+    ok:"r", exp:"ROJO: un muro barrigón o deformado es señal de peligro. Que la fachada se vea bien no quiere decir que la casa esté bien." },
+
+  { id:"u15", tema:"Semáforo: verde con vigilancia", tipo:"sem", img:"img/afec69.jpg",
+    q:"Casa tradicional: solo daños menores en muros, pero el técnico pidió a la familia observar el comportamiento del techo de la sala. ¿Qué color le dieron?",
+    ok:"v", exp:"VERDE con observaciones: se puede habitar, pero hay que vigilar el techo de la sala. Verde no quiere decir «olvídese de la casa»." },
+
+  { id:"u16", tema:"Causa: falta de viga cabezal", tipo:"foto", img:"img/afec34.jpg",
+    q:"Vivienda nueva, de unos 2 años: fisuras verticales entre las columnas y el muro, y un larguero del techo se separó del muro. ¿Cuál es la causa más probable según el técnico?",
+    ops:["El terreno se está deslizando","Falta una viga cabezal que amarre los muros por arriba","La casa es de tapia","El sismo partió las columnas"],
+    ok:1, exp:"Sin viga cabezal, los muros y la cubierta no quedan amarrados arriba. No había riesgo latente: monitorear y ajustar el larguero." },
+
+  { id:"u17", tema:"Pórticos sanos, muros dañados", tipo:"foto", img:"img/afec91.jpg",
+    q:"Los vecinos decían que este edificio quedó «tasajiado». El técnico encontró daño en muros divisorios y pisos, pero NO en columnas ni vigas. ¿Qué quiere decir eso?",
+    ops:["Hay que evacuar todo el edificio de inmediato","La estructura que lo sostiene no se afectó; se reparan muros y pisos","El edificio debe demolerse","El daño es solo de la pintura"],
+    ok:1, exp:"Los pórticos (columnas y vigas) son los que sostienen el edificio. Si están sanos, los muros divisorios se reparan sin evacuar." },
+
+  { id:"u18", tema:"Humedad y canaleta", tipo:"foto", img:"img/afec8.jpg",
+    q:"Grietas donde se unen muros de distintos materiales y una mancha de humedad en el muro. El técnico dijo que no había riesgo inminente. ¿Qué recomendó además de resanar?",
+    ops:["Reparar la canaleta de aguas lluvias y revisar con el vecino el peso de sus muros","Evacuar la vivienda","Demoler el muro afectado","Pintar con impermeabilizante y no hacer nada más"],
+    ok:0, exp:"La humedad venía de una canaleta averiada y había carga de muros vecinos. Si no se corrige la causa, el resane no dura." },
+
+  { id:"u19", tema:"Mampostería simple en ladera", tipo:"foto", img:"img/afec68.jpg",
+    q:"Casa de ladrillo sin columnas, en ladera; las columnas de madera del corredor se apoyan en el muro solo por su peso y hay grietas en los empalmes y en el piso. ¿Qué la hace más vulnerable?",
+    ops:["Tener teja de barro","Que se construyó por etapas, sin amarre, sobre cortes y rellenos de la ladera","Estar pintada de blanco","Tener corredor"],
+    ok:1, exp:"Muros sin amarre, construcción por etapas y cortes en la ladera: los tres factores de la charla (cómo se construyó, dónde está y cómo se ha cuidado)." },
+
+  { id:"u20", tema:"Ladera y asentamiento", tipo:"foto", img:"img/afec51.jpg",
+    q:"Vivienda en alta pendiente: una grieta atraviesa la pared y hay grietas en el suelo de antes del sismo. No había riesgo latente. ¿Qué recomendó el técnico?",
+    ops:["Construir otro piso para darle peso a la casa","Rellenar las grietas del suelo con tierra","Estabilizar la ladera con vetiver, mejorar la recolección de aguas lluvias y no sumar peso","Evacuar de inmediato"],
+    ok:2, exp:"En ladera hay que cuidar el terreno: vegetación que lo amarre, sacar el agua lluvia y no cargar más la casa. Si las grietas avanzan, avisar a Gestión del Riesgo." },
+
+  { id:"u21", tema:"Cielo raso caído", tipo:"foto", img:"img/afec81.jpg",
+    q:"En una casa de tapia se cayó el cielo raso de una pieza y aparecieron manchas de humedad en el techo. ¿Qué recomendó el técnico?",
+    ops:["Poner cielo raso nuevo enseguida para tapar","Pintar las manchas","No volver a poner cielo raso por ahora, para ver si aparecen nuevas humedades, y revisar las tejas","Evacuar toda la vivienda"],
+    ok:2, exp:"Dejar el techo a la vista permite detectar goteras nuevas. Primero se arregla la cubierta; tapar esconde el problema." },
+
+  { id:"u22", tema:"Hueco en muro de tapia", tipo:"foto", img:"img/afec37.jpg",
+    q:"Casa de tapia con este daño; la cubierta tiene humedad y la familia quiere demoler. El técnico vio que las tapias están bien en general. ¿Qué recomendó?",
+    ops:["Demoler toda la casa","Reforzar la estructura y cambiar la cubierta, revisando si las grietas pasan el muro al retirar el revoque","Tapar el hueco con papel y pintura","No hacer nada"],
+    ok:1, exp:"No todo daño lleva a demoler: se refuerza, se cambia la cubierta (fuente de la humedad) y se revisa a fondo al retirar el revoque." }
 ];
+
+const MULTIPLES = [
+  { id:"m01", tema:"Daños superficiales", tipo:"imgmulti",
+    q:"Marque TODAS las fotos con daños SUPERFICIALES, que se resanan y se vigilan.",
+    ops:[ {img:"img/afec82.jpg", ok:true,  nota:"Fisura de revoque"},
+          {img:"img/afec66.jpg", ok:false, nota:"Grieta que atraviesa la tapia"},
+          {img:"img/afec64.jpg", ok:true,  nota:"Fisuras superficiales"},
+          {img:"img/afec98.jpg", ok:false, nota:"Cubierta a punto de caer"},
+          {img:"img/afec50.jpg", ok:true,  nota:"Afectación poco profunda"},
+          {img:"img/afec113b.jpg", ok:false, nota:"Grieta abierta en tapia"} ],
+    exp:"Las fisuras de revoque no atraviesan el muro. Las grietas abiertas y los techos dañados necesitan revisión técnica." },
+
+  { id:"m02", tema:"El agua como causa", tipo:"imgmulti",
+    q:"Marque TODAS las fotos en las que el AGUA (humedad, goteras, canaletas o bajantes) tiene parte de la culpa del daño.",
+    ops:[ {img:"img/inf4.jpg",   ok:true,  nota:"Humedad junto al bajante"},
+          {img:"img/afec23.jpg", ok:false, nota:"Fisuras muro-viga por el sismo"},
+          {img:"img/afec81.jpg", ok:true,  nota:"Cielo raso caído por goteras"},
+          {img:"img/afec34.jpg", ok:false, nota:"Falta de viga cabezal"},
+          {img:"img/afec98.jpg", ok:true,  nota:"Madera podrida por humedad"},
+          {img:"img/afec8.jpg",  ok:true,  nota:"Canaleta averiada"} ],
+    exp:"El agua debilita tapias, maderas y pañetes. Canoas y bajantes sanos son parte de que la casa aguante." },
+
+  { id:"m03", tema:"Construcciones con estructura", tipo:"imgmulti",
+    q:"Marque TODAS las fotos de construcciones con columnas y vigas (mampostería confinada), las menos vulnerables.",
+    ops:[ {img:"img/edu26.jpg", ok:true,  nota:"Edificio con columnas y vigas"},
+          {img:"img/afec70.jpg", ok:false, nota:"Casa de tapia"},
+          {img:"img/inf6.jpg",  ok:true,  nota:"Ladrillo con estructura"},
+          {img:"img/afec55.jpg", ok:false, nota:"Casa de tapia"},
+          {img:"img/afec13.jpg", ok:true,  nota:"Edificio confinado"},
+          {img:"img/afec68.jpg", ok:false, nota:"Ladrillo sin columnas (mampostería simple)"} ],
+    exp:"Con columnas, vigas y viga de corona el ladrillo queda amarrado. La tapia y el ladrillo apilado sin columnas son mucho más vulnerables." },
+
+  { id:"m04", tema:"Señales de peligro", tipo:"imgmulti",
+    q:"Marque TODAS las fotos en las que hay que SALIR de esa zona de inmediato y llamar.",
+    ops:[ {img:"img/afec37b.jpg", ok:true,  nota:"Techo que cede"},
+          {img:"img/afec72.jpg", ok:false, nota:"Uso restringido, no evacuación inmediata"},
+          {img:"img/afec98.jpg", ok:true,  nota:"Cubierta con riesgo de colapso"},
+          {img:"img/afec82.jpg", ok:false, nota:"Fisura: vigilar"},
+          {img:"img/afec10.jpg", ok:false, nota:"Restringir el uso de la losa"},
+          {img:"img/afec26.jpg", ok:false, nota:"Riesgo de caída, no de colapso"} ],
+    exp:"Solo los techos que ceden obligan a salir ya. Los otros casos se manejan restringiendo, reparando o vigilando." },
+
+  { id:"m05", tema:"Rojo o uso restringido", tipo:"imgmulti",
+    q:"Marque TODAS las fotos de casos que quedaron en NARANJA o ROJO (uso restringido o crítico).",
+    ops:[ {img:"img/afec98.jpg", ok:true,  nota:"Rojo"},
+          {img:"img/afec23.jpg", ok:false, nota:"Verde"},
+          {img:"img/afec72.jpg", ok:true,  nota:"Naranja"},
+          {img:"img/afec13.jpg", ok:false, nota:"Verde"},
+          {img:"img/afec10.jpg", ok:true,  nota:"Naranja: restringir la losa"},
+          {img:"img/afec81.jpg", ok:true,  nota:"Naranja por la tapia"},
+          {img:"img/afec50.jpg", ok:false, nota:"Verde"} ],
+    exp:"En Girardota, de 70 casas evaluadas: 33 verdes, 11 naranjas y 12 rojas." },
+
+  { id:"m06", tema:"El terreno influye", tipo:"imgmulti",
+    q:"Marque TODAS las fotos en las que el TERRENO (ladera, cortes, rellenos o asentamiento) influyó en el daño.",
+    ops:[ {img:"img/afec74.jpg", ok:true,  nota:"Vivienda en alta pendiente"},
+          {img:"img/afec23.jpg", ok:false, nota:"Apartamento: fisuras muro-viga"},
+          {img:"img/afec51.jpg", ok:true,  nota:"Ladera con grietas en el suelo"},
+          {img:"img/afec34.jpg", ok:false, nota:"Falta de viga cabezal"},
+          {img:"img/afec68.jpg", ok:true,  nota:"Cortes y rellenos al construir"},
+          {img:"img/afec26.jpg", ok:false, nota:"Baldosas levantadas"} ],
+    exp:"Dónde está parada la casa importa tanto como cómo se construyó. En ladera se cuida el terreno y el agua." },
+
+  { id:"m07", tema:"Casas de tapia", tipo:"imgmulti",
+    q:"Marque TODAS las fotos de daños en casas de TAPIA.",
+    ops:[ {img:"img/afec72.jpg", ok:true,  nota:"Tapia con grietas en uniones"},
+          {img:"img/afec13.jpg", ok:false, nota:"Edificio confinado"},
+          {img:"img/afec113a.jpg", ok:true, nota:"Tapia y material mixto"},
+          {img:"img/afec23.jpg", ok:false, nota:"Apartamento en ladrillo"},
+          {img:"img/afec98.jpg", ok:true,  nota:"Cubierta sobre tapia"},
+          {img:"img/afec91.jpg", ok:false, nota:"Edificio con pórticos"} ],
+    exp:"La tapia se reconoce por muros muy gruesos de tierra, pañete irregular y cubiertas de madera apoyadas. 7 de 12 casas críticas eran de tapia." }
+];
+
+const N_UNICAS = 10, N_MULTI = 5, PTS_UNICA = 6, PTS_MULTI = 8;
+const N_PREG = N_UNICAS + N_MULTI, TOTAL = N_UNICAS*PTS_UNICA + N_MULTI*PTS_MULTI;
+const BANCO = Object.fromEntries([...UNICAS, ...MULTIPLES].map(p => [p.id, p]));
 // Base de datos en vivo (Firebase Realtime Database, API REST; sin librerías).
 const DB = "https://festival-del-chicharron-2026-default-rtdb.firebaseio.com/sismo2026/respuestas";
 const GANADORES = 8;
-const TOTAL = PREGUNTAS.reduce((s,p)=>s+p.pts,0);
 const SEM = { v:["VERDE","Habitable"], n:["NARANJA","Uso restringido"], r:["ROJO","Crítico"] };
+const LETRAS = "ABCDEFGH";
 const app = document.getElementById('app');
 const marcador = document.getElementById('marcador');
-let st, PQ = PREGUNTAS;
-// Cada persona recibe las opciones en distinto orden (no se copia la letra del vecino).
+let st, PQ = [];
+
 function barajar(a){ a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+// Sorteo por persona: preguntas al azar del banco y opciones en distinto orden.
 function prepararPreguntas(){
-  return PREGUNTAS.map(p => {
-    if (p.tipo === 'img') { const orden = barajar(p.ops.map((_,k)=>k)); return {...p, ops:orden.map(k=>p.ops[k]), ok:orden.indexOf(p.ok)}; }
-    if (p.tipo === 'multi') return {...p, ops:barajar(p.ops)};
+  const elegidas = [...barajar(UNICAS).slice(0, N_UNICAS).map(p => ({...p, pts:PTS_UNICA})),
+                    ...barajar(MULTIPLES).slice(0, N_MULTI).map(p => ({...p, pts:PTS_MULTI}))];
+  return barajar(elegidas).map(p => {
+    if (p.tipo === 'img' || p.tipo === 'foto') { const orden = barajar(p.ops.map((_,k)=>k)); return {...p, ops:orden.map(k=>p.ops[k]), ok:orden.indexOf(p.ok)}; }
+    if (p.tipo === 'imgmulti') return {...p, ops:barajar(p.ops)};
     return p;
   });
 }
@@ -298,18 +403,17 @@ function setMarcador(){ marcador.textContent = fmt(st.puntos) + " pts"; }
 
 function inicio(){
   marcador.classList.add('oculto');
-  const nImg = PREGUNTAS.filter(p=>p.tipo!=='multi').length, nMul = PREGUNTAS.length - nImg;
   app.innerHTML = `
   <div class="card">
     <div class="kicker">Sismo del 10 de agosto de 2026</div>
     <h1>¿Sabe leer su casa después de un temblor?</h1>
     <img class="foto" src="img/p7.jpg" alt="Casa en Girardota">
-    <p>Cuestionario <b>individual</b> de <b>${PREGUNTAS.length} preguntas</b> con fotos reales de las visitas en Girardota:</p>
+    <p>Cuestionario <b>individual</b> de <b>${N_PREG} preguntas, todas con fotos reales</b> de las visitas en Girardota. A cada persona le salen preguntas distintas:</p>
     <ul style="margin:0 0 6px;padding-left:22px">
-      <li><b>${nImg}</b> de elegir <b>una</b> foto o color</li>
-      <li><b>${nMul}</b> de <b>selección múltiple</b> (marque todas las correctas)</li>
+      <li><b>${N_UNICAS}</b> de elegir <b>una</b> respuesta (${PTS_UNICA} puntos)</li>
+      <li><b>${N_MULTI}</b> de marcar <b>todas</b> las fotos correctas (${PTS_MULTI} puntos)</li>
     </ul>
-    <p style="margin:6px 0">En total puede sumar <b>${TOTAL} puntos</b>.</p>
+    <p style="margin:6px 0">En total puede sumar <b>${TOTAL} puntos</b>. Su resultado aparece en la pantalla del ranking.</p>
     <div class="semaforo"><span style="background:var(--lima)"></span><span style="background:var(--naranja)"></span><span style="background:var(--rojo)"></span></div>
     <label class="f" for="nom">Su nombre completo *</label>
     <input type="text" id="nom" maxlength="50" autocomplete="name" placeholder="Nombre y apellido">
@@ -328,10 +432,10 @@ function inicio(){
 }
 
 function cabecera(p){
-  const tipos = { img:"Elija UNA foto", sem:"Elija UN color", multi:"Selección múltiple: marque TODAS las correctas" };
-  return `<div class="bar"><i style="width:${st.i/PREGUNTAS.length*100}%"></i></div>
+  const tipos = { img:"Elija UNA foto", sem:"Elija UN color", foto:"Elija UNA respuesta", imgmulti:"Selección múltiple: marque TODAS las fotos correctas" };
+  return `<div class="bar"><i style="width:${st.i/N_PREG*100}%"></i></div>
   <div class="card">
-    <div class="kicker">Pregunta ${st.i+1} de ${PREGUNTAS.length} <span class="valor">${p.pts} puntos</span></div>
+    <div class="kicker">Pregunta ${st.i+1} de ${N_PREG} <span class="valor">${p.pts} puntos</span></div>
     <h2>${esc(p.q)}</h2>
     <p class="tipo">${tipos[p.tipo]}</p>`;
 }
@@ -339,28 +443,31 @@ function cabecera(p){
 function pregunta(){
   const p = PQ[st.i];
   let cuerpo = "";
+  const tarjeta = (o,k) => `<button class="imgop" data-k="${k}"><img src="${o.img}" alt="Opción ${LETRAS[k]}"><span class="letra">${LETRAS[k]}</span><span class="nota">${esc(o.nota)}</span></button>`;
   if (p.tipo === "img") {
-    cuerpo = `<div class="grid" id="opts">${p.ops.map((o,k)=>`
-      <button class="imgop" data-k="${k}"><img src="${o.img}" alt="Opción ${"ABCD"[k]}"><span class="letra">${"ABCD"[k]}</span><span class="nota">${esc(o.nota)}</span></button>`).join('')}</div>`;
+    cuerpo = `<div class="grid" id="opts">${p.ops.map(tarjeta).join('')}</div>`;
+  } else if (p.tipo === "imgmulti") {
+    cuerpo = `<div class="grid${p.ops.length > 6 ? ' g3' : ''}" id="opts">${p.ops.map(tarjeta).join('')}</div>
+      <button class="btn" id="calif" disabled>Calificar</button>`;
   } else if (p.tipo === "sem") {
     cuerpo = `<img class="foto" src="${p.img}" alt="Foto de la visita">
       <div class="sem">${Object.keys(SEM).map(c=>`<button class="semop ${c}" data-c="${c}"><div class="luz"></div>${SEM[c][0]}<small>${SEM[c][1]}</small></button>`).join('')}</div>`;
   } else {
-    cuerpo = `<div class="ops">${p.ops.map((o,k)=>`
-      <label class="chk" data-k="${k}"><input type="checkbox" value="${k}"><span>${esc(o.t)}</span><span class="marca"></span></label>`).join('')}</div>
-      <button class="btn" id="calif" disabled>Calificar</button>`;
+    cuerpo = `<img class="foto" src="${p.img}" alt="Foto de la visita">
+      <div class="ops">${p.ops.map((o,k)=>`<button class="op" data-k="${k}"><b>${LETRAS[k]}</b><span>${esc(o)}</span></button>`).join('')}</div>`;
   }
   app.innerHTML = cabecera(p) + cuerpo + `<div id="fb"></div></div>`;
 
-  if (p.tipo === "img") app.querySelectorAll('.imgop').forEach(b => b.onclick = () => respUnica(+b.dataset.k));
+  if (p.tipo === "img") app.querySelectorAll('.imgop').forEach(b => b.onclick = () => respImg(+b.dataset.k));
+  if (p.tipo === "foto") app.querySelectorAll('.op').forEach(b => b.onclick = () => respFoto(+b.dataset.k));
   if (p.tipo === "sem") app.querySelectorAll('.semop').forEach(b => b.onclick = () => respSem(b.dataset.c));
-  if (p.tipo === "multi") {
+  if (p.tipo === "imgmulti") {
     const cal = document.getElementById('calif');
-    app.querySelectorAll('.chk input').forEach(inp => inp.onchange = () => {
-      inp.parentElement.classList.toggle('sel', inp.checked);
-      cal.disabled = !app.querySelector('.chk input:checked');
+    app.querySelectorAll('.imgop').forEach(b => b.onclick = () => {
+      b.classList.toggle('sel');
+      cal.disabled = !app.querySelector('.imgop.sel');
     });
-    cal.onclick = respMulti;
+    cal.onclick = respImgMulti;
   }
   window.scrollTo(0,0);
 }
@@ -368,7 +475,7 @@ function pregunta(){
 function cerrar(pts, titulo, bien){
   const p = PQ[st.i];
   st.puntos += pts; st.resp.push({ pts }); setMarcador();
-  const ultima = st.i === PREGUNTAS.length - 1;
+  const ultima = st.i === N_PREG - 1;
   document.getElementById('fb').innerHTML = `
     <div class="fb ${bien?'ok':'mal'}"><strong>${titulo}</strong>${esc(p.exp)}</div>
     <button class="btn" id="sig">${ultima?'Ver mi puntaje':'Siguiente'}</button>`;
@@ -376,13 +483,21 @@ function cerrar(pts, titulo, bien){
   document.getElementById('sig').scrollIntoView({behavior:'smooth', block:'end'});
 }
 
-function respUnica(k){
+function respImg(k){
   const p = PQ[st.i], bien = k === p.ok;
   const btns = app.querySelectorAll('.imgop');
   btns.forEach(b => b.disabled = true);
   btns[p.ok].classList.add('ok'); if (!bien) btns[k].classList.add('mal');
   document.getElementById('opts').classList.add('revelado');
-  cerrar(bien ? p.pts : 0, bien ? `¡Correcto! +${p.pts} puntos` : `No era esa. La correcta es la ${"ABCD"[p.ok]}`, bien);
+  cerrar(bien ? p.pts : 0, bien ? `¡Correcto! +${p.pts} puntos` : `No era esa. La correcta es la ${LETRAS[p.ok]}`, bien);
+}
+
+function respFoto(k){
+  const p = PQ[st.i], bien = k === p.ok;
+  const btns = app.querySelectorAll('.op');
+  btns.forEach(b => b.disabled = true);
+  btns[p.ok].classList.add('ok'); if (!bien) btns[k].classList.add('mal');
+  cerrar(bien ? p.pts : 0, bien ? `¡Correcto! +${p.pts} puntos` : `No era esa. La correcta es la ${LETRAS[p.ok]}`, bien);
 }
 
 function respSem(c){
@@ -392,19 +507,20 @@ function respSem(c){
   cerrar(bien ? p.pts : 0, bien ? `¡Correcto! +${p.pts} puntos` : `No era ese color`, bien);
 }
 
-function respMulti(){
+function respImgMulti(){
   const p = PQ[st.i];
   const total = p.ops.filter(o=>o.ok).length;
   let aciertos = 0, errores = 0;
-  app.querySelectorAll('.chk').forEach(l => {
-    const o = p.ops[+l.dataset.k], inp = l.querySelector('input'), m = l.querySelector('.marca');
-    inp.disabled = true; l.classList.remove('sel');
-    if (inp.checked && o.ok) { aciertos++; l.classList.add('ok'); m.textContent = "✔ bien"; }
-    else if (inp.checked && !o.ok) { errores++; l.classList.add('mal'); m.textContent = "✘ no va"; }
-    else if (!inp.checked && o.ok) { l.classList.add('falto'); m.textContent = "faltó"; }
+  app.querySelectorAll('.imgop').forEach(b => {
+    const o = p.ops[+b.dataset.k], marcada = b.classList.contains('sel');
+    b.disabled = true; b.classList.remove('sel');
+    if (marcada && o.ok) { aciertos++; b.classList.add('ok'); }
+    else if (marcada && !o.ok) { errores++; b.classList.add('mal'); }
+    else if (!marcada && o.ok) b.classList.add('falto');
   });
+  document.getElementById('opts').classList.add('revelado');
   document.getElementById('calif').remove();
-  // Cada correcta marcada suma; cada incorrecta marcada resta. Mínimo 0.
+  // Cada foto correcta marcada suma; cada incorrecta marcada resta. Mínimo 0.
   const pts = Math.max(0, aciertos - errores) / total * p.pts;
   const completo = aciertos === total && errores === 0;
   cerrar(pts, completo ? `¡Perfecto! +${p.pts} puntos` : `${aciertos} de ${total} correctas${errores?`, ${errores} de más`:''} · +${fmt(pts)} puntos`, completo);
@@ -425,7 +541,7 @@ function final(){
     <p class="hora">${ahora}</p>
     <p class="envio" id="envio">Enviando su resultado a la pantalla…</p>
     <ul class="resumen">${PQ.map((p,j)=>{ const r = st.resp[j].pts, c = r >= p.pts ? 'var(--verde)' : r > 0 ? 'var(--naranja)' : 'var(--rojo)';
-      return `<li><span>${j+1}. ${esc(p.q.length > 62 ? p.q.slice(0,60) + '…' : p.q)}</span><span class="s" style="color:${c}">${fmt(r)}/${p.pts}</span></li>`; }).join('')}</ul>
+      return `<li><span>${j+1}. ${esc(p.tema)}</span><span class="s" style="color:${c}">${fmt(r)}/${p.pts}</span></li>`; }).join('')}</ul>
     <img class="foto" src="img/p8.jpg" alt="Infografía Lectura de patologías en vivienda" style="object-fit:contain;max-height:none;margin-top:16px">
     <div class="fb ok"><strong>Recuerde</strong>Una grieta es un mensaje de la casa. Si ve señales de peligro, salga, quédese afuera y llame al 123.</div>
     <button class="btn sec" id="otra">Volver al inicio</button>
@@ -441,7 +557,7 @@ async function enviar(){
   const dato = { nombre: st.nombre.slice(0,50), vereda: st.vereda.slice(0,40),
     puntos: Math.round(st.puntos*10)/10, seg: st.seg,
     completas: st.resp.filter((r,j)=>r.pts >= PQ[j].pts).length,
-    det: st.resp.map(r=>Math.round(r.pts*10)/10), ts: Date.now() };
+    q: PQ.map(p=>p.id), det: st.resp.map(r=>Math.round(r.pts*10)/10), ts: Date.now() };
   try {
     const r = await fetch(DB + ".json", { method:"POST", body: JSON.stringify(dato) });
     if (!r.ok) throw new Error(r.status);
@@ -469,7 +585,7 @@ function vistaPantalla(){
       <div class="qrtxt">
         <div class="kicker">Escanee con la cámara del celular</div>
         <h1 style="margin:4px 0 0">¿Sabe leer su casa?</h1>
-        <p class="pasos">Cuestionario individual · ${PREGUNTAS.length} preguntas · ${TOTAL} puntos.<br>Al terminar, su puntaje aparece aquí abajo.</p>
+        <p class="pasos">Cuestionario individual · ${N_PREG} preguntas con fotos · ${TOTAL} puntos.<br>Al terminar, su puntaje aparece aquí abajo.</p>
         <p class="cuenta"><b id="nPart">0</b> participantes registrados</p>
         <div class="url">${esc(url)}</div>
         ${admin ? `<div class="admin"><button class="btn sec" id="borrar">Borrar todos los resultados</button></div>` : ''}
@@ -509,7 +625,7 @@ async function cargarRanking(){
       <span class="ico">${i === 0 ? '👑' : i < 3 ? '💪' : i < GANADORES ? '🎈' : ''}</span>
       <span class="pos">${i+1}</span>
       <span class="nom">${esc(d.nombre)}${i === 0 ? '<span class="tag">GANADOR</span>' : ''}${d.vereda ? `<small>${esc(d.vereda)}</small>` : ''}</span>
-      <span class="t">${d.completas ?? '–'}/${PREGUNTAS.length} completas<br>${mmss(d.seg||0)} min</span>
+      <span class="t">${d.completas ?? '–'}/${N_PREG} completas<br>${mmss(d.seg||0)} min</span>
       <span class="p">${fmt(d.puntos)}</span></li>`;
   const top = ULTIMO.slice(0, GANADORES), resto = ULTIMO.slice(GANADORES);
   box.innerHTML = `<ul class="rk">${top.map(fila).join('')}</ul>` +
@@ -519,18 +635,21 @@ async function cargarRanking(){
 
 function detalle(i){
   const d = ULTIMO[i]; if (!d) return;
+  const filas = (d.q || []).map((id,j) => {
+    const p = BANCO[id] || { tema:id, tipo:'' }, max = p.tipo === 'imgmulti' ? PTS_MULTI : PTS_UNICA;
+    const r = (d.det||[])[j] ?? 0, c = r >= max ? 'var(--verde)' : r > 0 ? 'var(--naranja)' : 'var(--rojo)';
+    return `<tr><td>${j+1}. ${esc(p.tema)}</td><td style="color:${c}">${fmt(r)} / ${max}</td></tr>`; }).join('');
   const w = document.createElement('div'); w.className = 'det';
   w.innerHTML = `<div class="card">
     <div class="kicker">Puesto ${i+1}${i < GANADORES ? ' · GANADOR' : ''}</div>
     <h1 style="margin:4px 0">${esc(d.nombre)}</h1>
-    <p style="margin:0">${d.vereda ? esc(d.vereda) + ' · ' : ''}<b>${fmt(d.puntos)} / ${TOTAL} puntos</b> · ${d.completas ?? '–'} de ${PREGUNTAS.length} preguntas completas · ${mmss(d.seg||0)} min</p>
-    <table>${PREGUNTAS.map((p,j)=>{ const r = (d.det||[])[j] ?? 0, c = r >= p.pts ? 'var(--verde)' : r > 0 ? 'var(--naranja)' : 'var(--rojo)';
-      return `<tr><td>${j+1}. ${esc(p.tema)}</td><td style="color:${c}">${fmt(r)} / ${p.pts}</td></tr>`; }).join('')}</table>
+    <p style="margin:0">${d.vereda ? esc(d.vereda) + ' · ' : ''}<b>${fmt(d.puntos)} / ${TOTAL} puntos</b> · ${d.completas ?? '–'} de ${N_PREG} preguntas completas · ${mmss(d.seg||0)} min</p>
+    <table>${filas}</table>
     <button class="btn sec" id="cerrarDet">Cerrar</button></div>`;
   document.body.appendChild(w);
-  const cerrar = () => w.remove();
-  w.onclick = e => { if (e.target === w) cerrar(); };
-  w.querySelector('#cerrarDet').onclick = cerrar;
+  const cerrarDet = () => w.remove();
+  w.onclick = e => { if (e.target === w) cerrarDet(); };
+  w.querySelector('#cerrarDet').onclick = cerrarDet;
 }
 
 function ruta(){
