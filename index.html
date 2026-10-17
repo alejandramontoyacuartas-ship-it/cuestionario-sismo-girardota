@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Sabe leer su casa? · Sismo Girardota</title>
+<meta name="description" content="Cuestionario de la charla comunitaria sobre el sismo del 10 de agosto de 2026 · Alcaldía de Girardota">
+<style>
+  :root{
+    --verde:#12745C; --verde-osc:#0c5644; --lima:#68C200;
+    --rojo:#C62828; --naranja:#EF8A00; --gris:#5f6b66;
+    --fondo:#f3f7f5; --tarjeta:#ffffff; --texto:#1d2b26; --borde:#d8e3de;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:"Arial Narrow",Arial,Helvetica,sans-serif;font-size:18px;line-height:1.4}
+  header{background:var(--verde);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;
+    border-bottom:5px solid var(--lima);position:sticky;top:0;z-index:5}
+  header img{height:40px}
+  header .t{font-weight:700;font-size:17px;line-height:1.15}
+  header .t small{display:block;font-weight:400;opacity:.85;font-size:14px}
+  header .pts{margin-left:auto;background:var(--lima);color:#0b2e24;font-weight:700;border-radius:20px;
+    padding:4px 12px;font-size:16px;white-space:nowrap}
+  main{max-width:640px;margin:0 auto;padding:16px}
+  .card{background:var(--tarjeta);border:1px solid var(--borde);border-radius:14px;padding:18px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  h1{color:var(--verde);font-size:30px;line-height:1.1;margin:4px 0 10px}
+  h2{font-size:22px;line-height:1.2;margin:10px 0 12px}
+  .kicker{color:var(--verde);font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+  .bar{height:8px;background:#dfe9e4;border-radius:6px;overflow:hidden;margin:0 0 14px}
+  .bar i{display:block;height:100%;background:var(--lima);transition:width .3s}
+  .foto{width:100%;max-height:340px;object-fit:cover;border-radius:10px;display:block;background:#e7ece9}
+  .foto.contain{object-fit:contain;background:#fff}
+  .pie{font-size:14px;color:var(--gris);margin:6px 0 0}
+  .valor{display:inline-block;background:#e6f4dc;color:var(--verde-osc);font-weight:700;border-radius:6px;
+    padding:2px 8px;font-size:14px;margin-left:6px}
+  .ops{display:grid;gap:10px;margin-top:6px}
+  .op{width:100%;text-align:left;font:inherit;font-size:18px;padding:13px 14px;border-radius:10px;
+    border:2px solid var(--borde);background:#fff;color:var(--texto);cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+  .op b{flex:0 0 26px;height:26px;border-radius:50%;background:var(--verde);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-size:15px}
+  .op:hover:not(:disabled){border-color:var(--verde)}
+  .op:disabled{cursor:default}
+  .op.ok{border-color:var(--lima);background:#eef8e6}
+  .op.ok b{background:var(--lima);color:#0b2e24}
+  .op.mal{border-color:var(--rojo);background:#fdeeee}
+  .op.mal b{background:var(--rojo)}
+  .fb{margin-top:14px;border-radius:10px;padding:12px 14px;font-size:17px}
+  .fb.ok{background:#eef8e6;border-left:6px solid var(--lima)}
+  .fb.mal{background:#fff4e5;border-left:6px solid var(--naranja)}
+  .fb strong{display:block;font-size:19px;margin-bottom:2px}
+  .btn{display:block;width:100%;margin-top:16px;padding:15px;border:0;border-radius:10px;font:inherit;
+    font-size:20px;font-weight:700;background:var(--verde);color:#fff;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--verde);border:2px solid var(--verde)}
+  input[type=text]{width:100%;font:inherit;font-size:18px;padding:12px;border:2px solid var(--borde);border-radius:10px}
+  .grande{font-size:76px;font-weight:700;color:var(--verde);line-height:1;text-align:center;margin:8px 0 0}
+  .grande small{font-size:30px;color:var(--gris)}
+  .nivel{text-align:center;font-size:22px;font-weight:700;margin:8px 0 4px}
+  .resumen{list-style:none;padding:0;margin:14px 0 0}
+  .resumen li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--borde);font-size:16px}
+  .resumen .s{font-weight:700;white-space:nowrap}
+  .semaforo{display:flex;gap:6px;margin:12px 0}
+  .semaforo span{flex:1;height:10px;border-radius:5px}
+  footer{text-align:center;color:var(--gris);font-size:13px;padding:18px 16px 30px}
+  #qrbox{display:flex;justify-content:center;margin:12px 0}
+  #qrbox img,#qrbox canvas{width:min(80vw,420px)!important;height:auto!important}
+  .url{word-break:break-all;text-align:center;font-size:16px;color:var(--verde-osc)}
+  .oculto{display:none}
+</style>
+</head>
+<body>
+<header>
+  <img src="img/logo.png" alt="Alcaldía de Girardota">
+  <div class="t">¿Sabe leer su casa?<small>Charla comunitaria · Sismo 10-ago-2026</small></div>
+  <div class="pts oculto" id="marcador">0 pts</div>
+</header>
+<main id="app"></main>
+<footer>Alcaldía de Girardota · Gestión del Riesgo de Desastres<br>girardota.gov.co · @alcaldiagirardota</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const PREGUNTAS = [
+  { img:"img/p1.jpg", pie:"Pared de una vivienda del centro de Girardota.",
+    q:"Esta raya delgada, como un cabello, va solo por el pañete y la pintura. ¿Qué es y qué se hace?",
+    pts:10,
+    ops:["Una grieta peligrosa: hay que salir de la casa ya",
+         "Una fisura: se resana y se vigila",
+         "Es normal y nunca hay que mirarla otra vez",
+         "Hay que tumbar ese muro"],
+    ok:1, exp:"Es una fisura: no atraviesa el muro. Se resana y se vigila, marcando las puntas para ver si crece." },
+
+  { img:"img/p2.jpg", pie:"Muro de una casa visitada después del sismo.",
+    q:"Esta raya está abierta, se ve la sombra y corre por la unión del muro. ¿Qué necesita?",
+    pts:10,
+    ops:["Solo pintura para taparla",
+         "Nada, todas las rayas son iguales",
+         "Revisión técnica, porque es una grieta",
+         "Echarle agua para que cierre"],
+    ok:2, exp:"Es una grieta: abierta y atraviesa el muro o corre por columnas, vigas o uniones. Hay que pedir revisión técnica." },
+
+  { img:"img/p3.jpg", pie:"Grieta registrada en una visita técnica.",
+    q:"El ancho de la grieta no lo decide todo. ¿Qué pesa MÁS para saber si es grave?",
+    pts:15,
+    ops:["El color de la pintura de la pared",
+         "Que tenga escalón (un lado más afuera) o que crezca cada semana",
+         "Que esté cerca de una ventana bonita",
+         "Que la casa sea vieja"],
+    ok:1, exp:"El escalón y el crecimiento pesan más que el ancho. Por eso conviene marcar la grieta y tomarle foto cada semana." },
+
+  { img:"img/p4.jpg", pie:"Caso real: apartamento en el centro.",
+    q:"Fisuras entre el muro y la viga, pero las columnas están sanas. ¿Qué color le daría el equipo técnico?",
+    pts:10,
+    ops:["Verde: se puede habitar, reparar y vigilar",
+         "Naranja: uso restringido",
+         "Rojo: crítico, no entrar"],
+    ok:0, exp:"Verde. La estructura (columnas y vigas) está bien; se resana y se vigila. En Girardota 33 casas quedaron en verde." },
+
+  { img:"img/p5.jpg", pie:"Caso real: casa de tapia en una vereda.",
+    q:"Casa de tapia con grietas grandes donde vive una adulta mayor. Quedó en NARANJA. ¿Qué significa?",
+    pts:15,
+    ops:["Que la casa se debe demoler",
+         "Que no pasa nada y se puede usar toda",
+         "Uso restringido: no usar la parte dañada y reforzar pronto",
+         "Que la familia debe pagar una multa"],
+    ok:2, exp:"Naranja (en el país se llama amarillo) es uso restringido: no usar la zona dañada y reforzar pronto, por ejemplo confinar con columnas y vigas." },
+
+  { img:"img/p6.jpg", pie:"Caso real: techo de una casa de tapia.",
+    q:"Este techo está podrido y con riesgo de caerse. La casa quedó en ROJO. ¿Qué quiere decir el rojo?",
+    pts:15,
+    ops:["Crítico: no entrar a esa zona por riesgo de colapso (no es orden de demoler)",
+         "Que la Alcaldía va a tumbar la casa mañana",
+         "Que solo hay que pintar el techo",
+         "Que la familia pierde la casa"],
+    ok:0, exp:"Rojo es crítico: no entrar a esa zona. NO es una orden de demolición. Aquí se recomendó no usar la zona y cambiar la cubierta." },
+
+  { img:"img/p7.jpg", pie:"Casa tradicional en ladera, Girardota.",
+    q:"¿Qué tipo de casa resultó MÁS vulnerable en Girardota? (7 de las 12 casas en rojo eran de este tipo)",
+    pts:15,
+    ops:["Mampostería confinada (ladrillo con columnas y vigas)",
+         "Tapia y bahareque",
+         "Edificios nuevos con licencia",
+         "Todas se comportaron igual"],
+    ok:1, exp:"Tapia y bahareque: tierra pesada que se debilita con la humedad y techos de madera muchas veces sin anclar. 7 de 12 casas críticas eran de tapia." },
+
+  { img:"img/p8.jpg", contain:true, pie:"Infografía «Lectura de patologías en vivienda», Gestión del Riesgo.",
+    q:"Usted ve un muro inclinado, grietas en X o un techo que cruje. ¿Qué hace?",
+    pts:10,
+    ops:["Se queda adentro midiendo la grieta",
+         "Espera a ver si mejora sola",
+         "Sale con su familia, se queda afuera y llama",
+         "Sube al techo a revisar"],
+    ok:2, exp:"No se ponga a medir: salga con su familia, quédese afuera y llame (123 o Gestión del Riesgo de la Alcaldía)." }
+];
+const TOTAL = PREGUNTAS.reduce((s,p)=>s+p.pts,0);
+const app = document.getElementById('app');
+const marcador = document.getElementById('marcador');
+let st = { i:0, puntos:0, nombre:"", resp:[] };
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function setMarcador(){ marcador.textContent = st.puntos + " pts"; }
+
+function inicio(){
+  marcador.classList.add('oculto');
+  app.innerHTML = `
+  <div class="card">
+    <div class="kicker">Sismo del 10 de agosto de 2026</div>
+    <h1>¿Sabe leer su casa después de un temblor?</h1>
+    <img class="foto" src="img/p7.jpg" alt="Casa en Girardota">
+    <p>Son <b>8 preguntas</b> con fotos reales de las visitas en Girardota. Cada una vale puntos; en total puede sumar <b>${TOTAL} puntos</b>.</p>
+    <div class="semaforo"><span style="background:var(--lima)"></span><span style="background:var(--naranja)"></span><span style="background:var(--rojo)"></span></div>
+    <label for="nom">Su nombre o el de su grupo (opcional)</label>
+    <input type="text" id="nom" maxlength="40" placeholder="Ej.: Grupo vereda San Diego">
+    <button class="btn" id="go">Empezar</button>
+  </div>`;
+  document.getElementById('go').onclick = () => {
+    st = { i:0, puntos:0, nombre:document.getElementById('nom').value.trim(), resp:[] };
+    marcador.classList.remove('oculto'); setMarcador(); pregunta();
+  };
+}
+
+function pregunta(){
+  const p = PREGUNTAS[st.i];
+  app.innerHTML = `
+  <div class="bar"><i style="width:${st.i/PREGUNTAS.length*100}%"></i></div>
+  <div class="card">
+    <div class="kicker">Pregunta ${st.i+1} de ${PREGUNTAS.length} <span class="valor">${p.pts} puntos</span></div>
+    <img class="foto${p.contain?' contain':''}" src="${p.img}" alt="${esc(p.pie)}">
+    <p class="pie">${esc(p.pie)}</p>
+    <h2>${esc(p.q)}</h2>
+    <div class="ops">${p.ops.map((o,k)=>`<button class="op" data-k="${k}"><b>${"ABCD"[k]}</b><span>${esc(o)}</span></button>`).join('')}</div>
+    <div id="fb"></div>
+  </div>`;
+  app.querySelectorAll('.op').forEach(b => b.onclick = () => responder(+b.dataset.k));
+  window.scrollTo(0,0);
+}
+
+function responder(k){
+  const p = PREGUNTAS[st.i], bien = k === p.ok;
+  const btns = app.querySelectorAll('.op');
+  btns.forEach(b => b.disabled = true);
+  btns[p.ok].classList.add('ok');
+  if(!bien) btns[k].classList.add('mal');
+  if(bien) st.puntos += p.pts;
+  st.resp.push({ bien, pts: bien ? p.pts : 0 });
+  setMarcador();
+  const ultima = st.i === PREGUNTAS.length - 1;
+  document.getElementById('fb').innerHTML = `
+    <div class="fb ${bien?'ok':'mal'}"><strong>${bien?`¡Correcto! +${p.pts} puntos`:'No era esa'}</strong>${esc(p.exp)}</div>
+    <button class="btn" id="sig">${ultima?'Ver mi puntaje':'Siguiente'}</button>`;
+  document.getElementById('sig').onclick = () => { st.i++; ultima ? final() : pregunta(); };
+  document.getElementById('sig').scrollIntoView({behavior:'smooth', block:'end'});
+}
+
+function final(){
+  const pc = st.puntos / TOTAL;
+  const nivel = pc >= .8 ? ['Experto en leer la casa','var(--verde)']
+              : pc >= .5 ? ['Va por buen camino','var(--naranja)']
+              : ['Repasemos juntos','var(--rojo)'];
+  const aciertos = st.resp.filter(r=>r.bien).length;
+  app.innerHTML = `
+  <div class="bar"><i style="width:100%"></i></div>
+  <div class="card">
+    <div class="kicker" style="text-align:center">${st.nombre ? esc(st.nombre) : 'Su resultado'}</div>
+    <div class="grande">${st.puntos}<small> / ${TOTAL}</small></div>
+    <div class="nivel" style="color:${nivel[1]}">${nivel[0]}</div>
+    <p style="text-align:center;margin:0">${aciertos} de ${PREGUNTAS.length} respuestas correctas</p>
+    <p style="text-align:center;color:var(--gris);font-size:15px">Muestre esta pantalla al equipo de la Alcaldía.</p>
+    <ul class="resumen">${PREGUNTAS.map((p,j)=>`<li><span>${j+1}. ${esc(p.q.split('?')[0].slice(0,60))}…</span><span class="s" style="color:${st.resp[j].bien?'var(--verde)':'var(--rojo)'}">${st.resp[j].bien?'✔':'✘'} ${st.resp[j].pts}/${p.pts}</span></li>`).join('')}</ul>
+    <div class="fb ok" style="margin-top:16px"><strong>Recuerde</strong>Una grieta es un mensaje de la casa. Si ve señales de peligro, salga, quédese afuera y llame al 123.</div>
+    <button class="btn sec" id="otra">Volver a empezar</button>
+  </div>`;
+  document.getElementById('otra').onclick = inicio;
+  window.scrollTo(0,0);
+}
+
+function vistaQR(){
+  marcador.classList.add('oculto');
+  const url = location.href.split('#')[0];
+  app.innerHTML = `
+  <div class="card" style="text-align:center">
+    <div class="kicker">Escanee con la cámara del celular</div>
+    <h1 style="margin-bottom:0">¿Sabe leer su casa?</h1>
+    <p style="margin:6px 0 0">8 preguntas · ${TOTAL} puntos</p>
+    <div id="qrbox"></div>
+    <div class="url">${esc(url)}</div>
+  </div>`;
+  if (window.QRCode) new QRCode(document.getElementById('qrbox'), { text:url, width:420, height:420, colorDark:"#0c5644", colorLight:"#ffffff", correctLevel:QRCode.CorrectLevel.M });
+  else document.getElementById('qrbox').textContent = "No se pudo cargar el generador de QR (revise la conexión).";
+}
+
+function ruta(){ location.hash === '#qr' ? vistaQR() : inicio(); }
+window.addEventListener('hashchange', ruta);
+ruta();
+</script>
+</body>
+</html>
