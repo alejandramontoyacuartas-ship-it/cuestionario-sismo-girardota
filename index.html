@@ -101,11 +101,15 @@
   /* Pantalla de proyección: QR + ranking en vivo */
   body.pantalla main{max-width:1500px}
   body.pantalla footer{display:none}
-  .pant{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:20px;align-items:start}
-  .pant .qrcol{position:sticky;top:84px;text-align:center}
+  .pant{display:grid;grid-template-columns:1fr;gap:16px}
+  .pant .qrcol{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+  .qrtxt{max-width:560px}
+  .qrtxt h1{font-size:44px}
+  .qrtxt .pasos{font-size:22px;margin:8px 0 0}
   body.pantalla header{position:static}
   body.pantalla main{padding-top:10px}
-  .pant #qrbox img,.pant #qrbox canvas{width:100%!important;max-width:380px}
+  .pant #qrbox{margin:0}
+  .pant #qrbox img,.pant #qrbox canvas{width:270px!important;height:270px!important}
   .cuenta{font-size:20px;margin:10px 0 0}
   .cuenta b{font-size:34px;color:var(--verde)}
   .rk-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -113,13 +117,16 @@
   .vivo{font-size:15px;color:var(--gris)} .vivo i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--lima);margin-right:6px;animation:lat 1.4s infinite}
   @keyframes lat{50%{opacity:.25}}
   .rk{list-style:none;margin:12px 0 0;padding:0}
-  .rk li{display:grid;grid-template-columns:56px 1fr auto auto;gap:12px;align-items:center;padding:5px 12px;border-radius:10px;
+  .rk li{display:grid;grid-template-columns:52px 46px 1fr auto auto;gap:12px;align-items:center;padding:5px 12px;border-radius:10px;
     margin-bottom:5px;background:#fff;border:1px solid var(--borde);cursor:pointer;font-size:21px}
   .rk li:hover{border-color:var(--verde)}
   .rk li.gana{background:#eef8e6;border:2px solid var(--lima)}
   .rk .pos{font-weight:700;font-size:26px;text-align:center;color:var(--verde-osc)}
   .rk li.gana .pos{background:var(--verde);color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;margin:auto}
   .rk li.oro .pos{background:#C9A227} .rk li.plata .pos{background:#8E9AA3} .rk li.bronce .pos{background:#A86A3D}
+  .rk .ico{font-size:36px;line-height:1;text-align:center}
+  .rk li.oro{background:#fff8dc;border-color:#C9A227}
+  .tag{display:inline-block;background:#C9A227;color:#fff;font-size:14px;font-weight:700;letter-spacing:.06em;border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle}
   .rk .nom{font-weight:700;line-height:1.1} .rk .nom small{display:block;font-weight:400;font-size:16px;color:var(--gris)}
   .rk .t{font-size:15px;line-height:1.15;color:var(--gris);text-align:right;white-space:nowrap}
   .rk .p{font-weight:700;font-size:28px;color:var(--verde);min-width:80px;text-align:right}
@@ -130,7 +137,7 @@
   .det table{width:100%;border-collapse:collapse;font-size:18px;margin-top:8px}
   .det td{padding:6px 4px;border-bottom:1px solid var(--borde)} .det td:last-child{text-align:right;font-weight:700;white-space:nowrap}
   .admin{margin-top:14px;font-size:14px}
-  @media (max-width:900px){ .pant{grid-template-columns:1fr} .pant .qrcol{position:static} .rk li{font-size:18px;grid-template-columns:44px 1fr auto} .rk .t{display:none} }
+  @media (max-width:900px){ .pant{grid-template-columns:1fr} .pant .qrcol{position:static} .rk li{font-size:18px;grid-template-columns:40px 40px 1fr auto} .rk .t{display:none} }
 </style>
 </head>
 <body>
@@ -458,21 +465,23 @@ function vistaPantalla(){
   app.innerHTML = `
   <div class="pant">
     <div class="card qrcol">
-      <div class="kicker">Escanee con la cámara del celular</div>
-      <h1 style="margin-bottom:0">¿Sabe leer su casa?</h1>
-      <p style="margin:6px 0 0">Individual · ${PREGUNTAS.length} preguntas · ${TOTAL} puntos</p>
       <div id="qrbox"></div>
-      <div class="url">${esc(url)}</div>
-      <p class="cuenta"><b id="nPart">0</b> participantes</p>
-      ${admin ? `<div class="admin"><button class="btn sec" id="borrar">Borrar todos los resultados</button></div>` : ''}
+      <div class="qrtxt">
+        <div class="kicker">Escanee con la cámara del celular</div>
+        <h1 style="margin:4px 0 0">¿Sabe leer su casa?</h1>
+        <p class="pasos">Cuestionario individual · ${PREGUNTAS.length} preguntas · ${TOTAL} puntos.<br>Al terminar, su puntaje aparece aquí abajo.</p>
+        <p class="cuenta"><b id="nPart">0</b> participantes registrados</p>
+        <div class="url">${esc(url)}</div>
+        ${admin ? `<div class="admin"><button class="btn sec" id="borrar">Borrar todos los resultados</button></div>` : ''}
+      </div>
     </div>
     <div class="card">
       <div class="rk-h"><h1>Ranking en vivo</h1><span class="vivo"><i></i>se actualiza solo</span></div>
-      <p class="tipo" style="margin:4px 0 0">Los ${GANADORES} primeros ganan. Si hay empate, gana quien terminó en menos tiempo. Toque un nombre para ver el detalle.</p>
+      <p class="tipo" style="margin:4px 0 0">👑 1.º puesto · 💪 2.º y 3.º · 🎈 4.º al ${GANADORES}.º. Los ${GANADORES} primeros ganan. Si hay empate, gana quien terminó en menos tiempo. Toque un nombre para ver el detalle.</p>
       <div id="rk"><div class="vacio">Esperando las primeras respuestas…</div></div>
     </div>
   </div>`;
-  if (window.QRCode) new QRCode(document.getElementById('qrbox'), { text:url, width:380, height:380, colorDark:"#0c5644", colorLight:"#ffffff", correctLevel:QRCode.CorrectLevel.M });
+  if (window.QRCode) new QRCode(document.getElementById('qrbox'), { text:url, width:270, height:270, colorDark:"#0c5644", colorLight:"#ffffff", correctLevel:QRCode.CorrectLevel.M });
   else document.getElementById('qrbox').textContent = "No se pudo cargar el generador de QR (revise la conexión).";
   if (admin) document.getElementById('borrar').onclick = async () => {
     if (!confirm("¿Borrar TODOS los resultados del ranking? No se puede deshacer.")) return;
@@ -497,8 +506,9 @@ async function cargarRanking(){
   const box = document.getElementById('rk'); if (!box) return;
   if (!ULTIMO.length) { box.innerHTML = '<div class="vacio">Esperando las primeras respuestas…</div>'; return; }
   const fila = (d,i) => `<li class="${i < GANADORES ? 'gana' : ''} ${['oro','plata','bronce'][i] || ''}" data-i="${i}">
+      <span class="ico">${i === 0 ? '👑' : i < 3 ? '💪' : i < GANADORES ? '🎈' : ''}</span>
       <span class="pos">${i+1}</span>
-      <span class="nom">${esc(d.nombre)}${d.vereda ? `<small>${esc(d.vereda)}</small>` : ''}</span>
+      <span class="nom">${esc(d.nombre)}${i === 0 ? '<span class="tag">GANADOR</span>' : ''}${d.vereda ? `<small>${esc(d.vereda)}</small>` : ''}</span>
       <span class="t">${d.completas ?? '–'}/${PREGUNTAS.length} completas<br>${mmss(d.seg||0)} min</span>
       <span class="p">${fmt(d.puntos)}</span></li>`;
   const top = ULTIMO.slice(0, GANADORES), resto = ULTIMO.slice(GANADORES);
