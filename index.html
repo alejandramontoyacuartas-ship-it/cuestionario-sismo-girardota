@@ -460,7 +460,7 @@ const clave = n => n.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().repla
 function vistaPantalla(){
   marcador.classList.add('oculto');
   document.body.classList.add('pantalla');
-  const url = location.href.split('#')[0];
+  const url = location.origin + location.pathname;
   const admin = /admin/.test(location.hash);
   app.innerHTML = `
   <div class="pant">
