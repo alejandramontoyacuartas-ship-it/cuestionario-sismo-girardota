@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>¿Sabe leer su casa? · Sismo Girardota</title>
-<meta name="description" content="Cuestionario de la charla comunitaria sobre el sismo del 10 de agosto de 2026 · Alcaldía de Girardota">
+<meta name="description" content="Cuestionario individual de la charla comunitaria sobre el sismo del 10 de agosto de 2026 · Alcaldía de Girardota">
 <style>
   :root{
     --verde:#12745C; --verde-osc:#0c5644; --lima:#68C200;
@@ -25,34 +25,62 @@
   .card{background:var(--tarjeta);border:1px solid var(--borde);border-radius:14px;padding:18px;
     box-shadow:0 2px 8px rgba(0,0,0,.05)}
   h1{color:var(--verde);font-size:30px;line-height:1.1;margin:4px 0 10px}
-  h2{font-size:22px;line-height:1.2;margin:10px 0 12px}
+  h2{font-size:22px;line-height:1.2;margin:10px 0 6px}
   .kicker{color:var(--verde);font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+  .tipo{color:var(--gris);font-size:15px;margin:0 0 12px}
   .bar{height:8px;background:#dfe9e4;border-radius:6px;overflow:hidden;margin:0 0 14px}
   .bar i{display:block;height:100%;background:var(--lima);transition:width .3s}
-  .foto{width:100%;max-height:340px;object-fit:cover;border-radius:10px;display:block;background:#e7ece9}
-  .foto.contain{object-fit:contain;background:#fff}
-  .pie{font-size:14px;color:var(--gris);margin:6px 0 0}
+  .foto{width:100%;max-height:320px;object-fit:cover;border-radius:10px;display:block;background:#e7ece9;margin-top:8px}
   .valor{display:inline-block;background:#e6f4dc;color:var(--verde-osc);font-weight:700;border-radius:6px;
     padding:2px 8px;font-size:14px;margin-left:6px}
+
+  /* opciones con imagen */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .imgop{position:relative;padding:0;border:3px solid var(--borde);border-radius:12px;background:#fff;
+    overflow:hidden;cursor:pointer;font:inherit;text-align:left;color:var(--texto)}
+  .imgop img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+  .imgop .letra{position:absolute;top:6px;left:6px;width:30px;height:30px;border-radius:50%;background:var(--verde);
+    color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+  .imgop .nota{display:none;padding:6px 8px;font-size:14px;line-height:1.25}
+  .imgop:hover:not(:disabled){border-color:var(--verde)}
+  .imgop:disabled{cursor:default}
+  .imgop.ok{border-color:var(--lima)} .imgop.ok .letra{background:var(--lima);color:#0b2e24}
+  .imgop.mal{border-color:var(--rojo)} .imgop.mal .letra{background:var(--rojo)}
+  .revelado .imgop .nota{display:block}
+
+  /* semáforo */
+  .sem{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .semop{border:3px solid transparent;border-radius:12px;padding:14px 6px;font:inherit;color:#fff;cursor:pointer;
+    text-align:center;font-weight:700;font-size:20px;line-height:1.1}
+  .semop small{display:block;font-weight:400;font-size:14px;margin-top:4px}
+  .semop .luz{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.9);margin:0 auto 8px}
+  .semop.v{background:#3d9a2b} .semop.n{background:var(--naranja)} .semop.r{background:var(--rojo)}
+  .semop:disabled{cursor:default;opacity:.45}
+  .semop.ok{opacity:1;border-color:#0b2e24;box-shadow:0 0 0 3px var(--lima)}
+  .semop.mal{opacity:1;border-color:#0b2e24}
+
+  /* selección múltiple */
   .ops{display:grid;gap:10px;margin-top:6px}
-  .op{width:100%;text-align:left;font:inherit;font-size:18px;padding:13px 14px;border-radius:10px;
-    border:2px solid var(--borde);background:#fff;color:var(--texto);cursor:pointer;display:flex;gap:10px;align-items:flex-start}
-  .op b{flex:0 0 26px;height:26px;border-radius:50%;background:var(--verde);color:#fff;display:flex;
-    align-items:center;justify-content:center;font-size:15px}
-  .op:hover:not(:disabled){border-color:var(--verde)}
-  .op:disabled{cursor:default}
-  .op.ok{border-color:var(--lima);background:#eef8e6}
-  .op.ok b{background:var(--lima);color:#0b2e24}
-  .op.mal{border-color:var(--rojo);background:#fdeeee}
-  .op.mal b{background:var(--rojo)}
+  .chk{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:10px;border:2px solid var(--borde);
+    background:#fff;cursor:pointer;font-size:18px}
+  .chk input{width:24px;height:24px;flex:0 0 24px;margin:1px 0 0;accent-color:var(--verde)}
+  .chk.sel{border-color:var(--verde);background:#f2f9f5}
+  .chk.ok{border-color:var(--lima);background:#eef8e6}
+  .chk.mal{border-color:var(--rojo);background:#fdeeee}
+  .chk.falto{border-color:var(--naranja);border-style:dashed}
+  .chk .marca{margin-left:auto;font-weight:700;white-space:nowrap;font-size:15px}
+
   .fb{margin-top:14px;border-radius:10px;padding:12px 14px;font-size:17px}
   .fb.ok{background:#eef8e6;border-left:6px solid var(--lima)}
   .fb.mal{background:#fff4e5;border-left:6px solid var(--naranja)}
   .fb strong{display:block;font-size:19px;margin-bottom:2px}
   .btn{display:block;width:100%;margin-top:16px;padding:15px;border:0;border-radius:10px;font:inherit;
     font-size:20px;font-weight:700;background:var(--verde);color:#fff;cursor:pointer}
+  .btn:disabled{background:#9db8ae;cursor:default}
   .btn.sec{background:#fff;color:var(--verde);border:2px solid var(--verde)}
+  label.f{display:block;font-weight:700;margin:12px 0 4px}
   input[type=text]{width:100%;font:inherit;font-size:18px;padding:12px;border:2px solid var(--borde);border-radius:10px}
+  .aviso{color:var(--rojo);font-size:15px;min-height:20px;margin-top:4px}
   .grande{font-size:76px;font-weight:700;color:var(--verde);line-height:1;text-align:center;margin:8px 0 0}
   .grande small{font-size:30px;color:var(--gris)}
   .nivel{text-align:center;font-size:22px;font-weight:700;margin:8px 0 4px}
@@ -61,6 +89,7 @@
   .resumen .s{font-weight:700;white-space:nowrap}
   .semaforo{display:flex;gap:6px;margin:12px 0}
   .semaforo span{flex:1;height:10px;border-radius:5px}
+  .hora{text-align:center;color:var(--gris);font-size:14px;margin:4px 0 0}
   footer{text-align:center;color:var(--gris);font-size:13px;padding:18px 16px 30px}
   #qrbox{display:flex;justify-content:center;margin:12px 0}
   #qrbox img,#qrbox canvas{width:min(80vw,420px)!important;height:auto!important}
@@ -79,136 +108,248 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+/* Tipos:
+   img   → elegir UNA foto entre varias (única respuesta)
+   sem   → ver una foto y elegir UN color del semáforo (única respuesta)
+   multi → selección múltiple: marcar TODAS las correctas (puntaje parcial)
+   Fotos: visitas técnicas del sismo en Girardota, recortadas sin datos de ubicación. */
 const PREGUNTAS = [
-  { img:"img/p1.jpg", pie:"Pared de una vivienda del centro de Girardota.",
-    q:"Esta raya delgada, como un cabello, va solo por el pañete y la pintura. ¿Qué es y qué se hace?",
-    pts:10,
-    ops:["Una grieta peligrosa: hay que salir de la casa ya",
-         "Una fisura: se resana y se vigila",
-         "Es normal y nunca hay que mirarla otra vez",
-         "Hay que tumbar ese muro"],
-    ok:1, exp:"Es una fisura: no atraviesa el muro. Se resana y se vigila, marcando las puntas para ver si crece." },
+  { tipo:"img", pts:6,
+    q:"¿Cuál foto muestra una FISURA: delgada como un cabello, solo en el pañete, que se resana y se vigila?",
+    ops:[ {img:"img/afec66.jpg", nota:"Grieta abierta en tapia: necesita revisión técnica"},
+          {img:"img/afec82.jpg", nota:"Fisura superficial en el revoque: sin riesgo, resanar y vigilar"},
+          {img:"img/afec37b.jpg", nota:"Cielo raso roto: peligro de caída"},
+          {img:"img/afec72.jpg", nota:"Grietas grandes en esquinas de tapia"} ],
+    ok:1, exp:"La fisura no atraviesa el muro: va por el pañete o la pintura. Se resana y se vigila." },
 
-  { img:"img/p2.jpg", pie:"Muro de una casa visitada después del sismo.",
-    q:"Esta raya está abierta, se ve la sombra y corre por la unión del muro. ¿Qué necesita?",
-    pts:10,
-    ops:["Solo pintura para taparla",
-         "Nada, todas las rayas son iguales",
-         "Revisión técnica, porque es una grieta",
-         "Echarle agua para que cierre"],
-    ok:2, exp:"Es una grieta: abierta y atraviesa el muro o corre por columnas, vigas o uniones. Hay que pedir revisión técnica." },
+  { tipo:"img", pts:6,
+    q:"¿Cuál foto muestra una GRIETA que necesita revisión técnica: abierta, se ve la sombra y atraviesa el muro?",
+    ops:[ {img:"img/afec64.jpg", nota:"Fisuras superficiales en zonas comunes: sin riesgo"},
+          {img:"img/afec50.jpg", nota:"Raya irregular poco profunda: sin riesgo, vigilar"},
+          {img:"img/afec66.jpg", nota:"Grieta abierta que atraviesa la tapia: revisión técnica"},
+          {img:"img/afec82.jpg", nota:"Fisura en el revoque: resanar y vigilar"} ],
+    ok:2, exp:"Una grieta está abierta, se ve la sombra y atraviesa el muro o corre por columnas, vigas o uniones." },
 
-  { img:"img/p3.jpg", pie:"Grieta registrada en una visita técnica.",
-    q:"El ancho de la grieta no lo decide todo. ¿Qué pesa MÁS para saber si es grave?",
-    pts:15,
-    ops:["El color de la pintura de la pared",
-         "Que tenga escalón (un lado más afuera) o que crezca cada semana",
-         "Que esté cerca de una ventana bonita",
-         "Que la casa sea vieja"],
-    ok:1, exp:"El escalón y el crecimiento pesan más que el ancho. Por eso conviene marcar la grieta y tomarle foto cada semana." },
+  { tipo:"multi", pts:8,
+    q:"¿Qué se pregunta el técnico cuando lee una grieta?",
+    ops:[ {t:"¿Qué tan ancha es?", ok:true},
+          {t:"¿Tiene escalón (un lado quedó más afuera)?", ok:true},
+          {t:"¿De qué color está pintada la pared?", ok:false},
+          {t:"¿Está creciendo cada semana?", ok:true},
+          {t:"¿Hacia dónde va? (diagonal o en X)", ok:true},
+          {t:"¿Cuántos años tiene el dueño?", ok:false} ],
+    exp:"Son cinco preguntas: ancho, dirección, si atraviesa el muro, si tiene escalón y si está creciendo. El escalón y el crecimiento pesan más que el ancho." },
 
-  { img:"img/p4.jpg", pie:"Caso real: apartamento en el centro.",
-    q:"Fisuras entre el muro y la viga, pero las columnas están sanas. ¿Qué color le daría el equipo técnico?",
-    pts:10,
-    ops:["Verde: se puede habitar, reparar y vigilar",
-         "Naranja: uso restringido",
-         "Rojo: crítico, no entrar"],
-    ok:0, exp:"Verde. La estructura (columnas y vigas) está bien; se resana y se vigila. En Girardota 33 casas quedaron en verde." },
+  { tipo:"img", pts:6,
+    q:"¿Cuál casa es de TAPIA, el tipo de construcción más vulnerable en Girardota?",
+    ops:[ {img:"img/edu26.jpg", nota:"Edificio con columnas y vigas: menos vulnerable"},
+          {img:"img/afec70.jpg", nota:"Casa de tapia: muy alta vulnerabilidad"},
+          {img:"img/inf6.jpg", nota:"Ladrillo con estructura: menos vulnerable"} ],
+    ok:1, exp:"La tapia es tierra pesada que se debilita con la humedad y suele tener el techo apoyado sin anclar. 7 de las 12 casas en estado crítico en Girardota eran de tapia." },
 
-  { img:"img/p5.jpg", pie:"Caso real: casa de tapia en una vereda.",
-    q:"Casa de tapia con grietas grandes donde vive una adulta mayor. Quedó en NARANJA. ¿Qué significa?",
-    pts:15,
-    ops:["Que la casa se debe demoler",
-         "Que no pasa nada y se puede usar toda",
-         "Uso restringido: no usar la parte dañada y reforzar pronto",
-         "Que la familia debe pagar una multa"],
-    ok:2, exp:"Naranja (en el país se llama amarillo) es uso restringido: no usar la zona dañada y reforzar pronto, por ejemplo confinar con columnas y vigas." },
+  { tipo:"multi", pts:8,
+    q:"El mismo temblor, casas muy distintas. ¿De qué depende cómo le va a una casa?",
+    ops:[ {t:"De cómo se construyó (columnas y vigas, ladrillo apilado, tapia)", ok:true},
+          {t:"Del color de la fachada", ok:false},
+          {t:"De dónde está parada (ladera, cortes, rellenos, agua)", ok:true},
+          {t:"De cómo se ha cuidado (goteras, humedad, ampliaciones sin amarre)", ok:true},
+          {t:"De la cantidad de muebles que tiene", ok:false} ],
+    exp:"Tres cosas: cómo se construyó, dónde está parada y cómo se ha cuidado." },
 
-  { img:"img/p6.jpg", pie:"Caso real: techo de una casa de tapia.",
-    q:"Este techo está podrido y con riesgo de caerse. La casa quedó en ROJO. ¿Qué quiere decir el rojo?",
-    pts:15,
-    ops:["Crítico: no entrar a esa zona por riesgo de colapso (no es orden de demoler)",
-         "Que la Alcaldía va a tumbar la casa mañana",
-         "Que solo hay que pintar el techo",
-         "Que la familia pierde la casa"],
-    ok:0, exp:"Rojo es crítico: no entrar a esa zona. NO es una orden de demolición. Aquí se recomendó no usar la zona y cambiar la cubierta." },
+  { tipo:"img", pts:6,
+    q:"¿Cuál vivienda está en una LADERA, donde el terreno puede influir en los daños?",
+    ops:[ {img:"img/inf6.jpg", nota:"Edificio en terreno plano, zona urbana"},
+          {img:"img/edu26.jpg", nota:"Edificio con estructura, terreno estable"},
+          {img:"img/afec74.jpg", nota:"Vivienda en alta pendiente: el terreno también se revisa"} ],
+    ok:2, exp:"En ladera, los cortes, rellenos y el agua lluvia que se mete al terreno pueden mover la casa. Por eso el técnico también mira alrededor." },
 
-  { img:"img/p7.jpg", pie:"Casa tradicional en ladera, Girardota.",
-    q:"¿Qué tipo de casa resultó MÁS vulnerable en Girardota? (7 de las 12 casas en rojo eran de este tipo)",
-    pts:15,
-    ops:["Mampostería confinada (ladrillo con columnas y vigas)",
-         "Tapia y bahareque",
-         "Edificios nuevos con licencia",
-         "Todas se comportaron igual"],
-    ok:1, exp:"Tapia y bahareque: tierra pesada que se debilita con la humedad y techos de madera muchas veces sin anclar. 7 de 12 casas críticas eran de tapia." },
+  { tipo:"img", pts:6,
+    q:"¿En cuál foto el AGUA (humedad, bajante, filtración) está dañando la pared?",
+    ops:[ {img:"img/afec82.jpg", nota:"Fisura seca en el revoque"},
+          {img:"img/inf4.jpg", nota:"Humedad junto a un bajante: pañete inflado y descascarado"},
+          {img:"img/afec64.jpg", nota:"Fisuras superficiales sin humedad"},
+          {img:"img/afec50.jpg", nota:"Raya irregular sin humedad"} ],
+    ok:1, exp:"El agua debilita muros y losas; muchas veces el temblor solo suelta lo que la humedad ya había dañado. Saque el agua lluvia: canoas y bajantes sanos." },
 
-  { img:"img/p8.jpg", contain:true, pie:"Infografía «Lectura de patologías en vivienda», Gestión del Riesgo.",
-    q:"Usted ve un muro inclinado, grietas en X o un techo que cruje. ¿Qué hace?",
-    pts:10,
-    ops:["Se queda adentro midiendo la grieta",
-         "Espera a ver si mejora sola",
-         "Sale con su familia, se queda afuera y llama",
-         "Sube al techo a revisar"],
-    ok:2, exp:"No se ponga a medir: salga con su familia, quédese afuera y llame (123 o Gestión del Riesgo de la Alcaldía)." }
+  { tipo:"sem", pts:6, img:"img/afec23.jpg",
+    q:"Apartamento en el centro: fisuras entre el muro y la viga, columnas sanas. ¿Qué color le dio el equipo técnico?",
+    ok:"v", exp:"VERDE: se puede habitar. Tiene fisuras, pero la estructura está bien. Se resana y se vigila. En Girardota 33 casas quedaron en verde." },
+
+  { tipo:"sem", pts:6, img:"img/afec72.jpg",
+    q:"Casa de tapia en una vereda, grietas grandes en las esquinas; vive una adulta mayor. ¿Qué color le dieron?",
+    ok:"n", exp:"NARANJA (en el país se llama amarillo): uso restringido. No usar la parte dañada y reforzar pronto; aquí se recomendó confinar con columnas y vigas." },
+
+  { tipo:"sem", pts:6, img:"img/afec98.jpg",
+    q:"Casa de tapia en una vereda: el techo está podrido y con riesgo de caerse. ¿Qué color le dieron?",
+    ok:"r", exp:"ROJO: crítico, no entrar a esa zona por riesgo de colapso. Ojo: el rojo NO es una orden de demoler. Se recomendó no usar la zona y cambiar la cubierta." },
+
+  { tipo:"multi", pts:8,
+    q:"¿Cuáles son SEÑALES DE PELIGRO para salir de la casa y avisar?",
+    ops:[ {t:"Muro inclinado o barrigón", ok:true},
+          {t:"Una fisura delgada en la pintura", ok:false},
+          {t:"Grietas en forma de X", ok:true},
+          {t:"Techo que se hunde o cruje", ok:true},
+          {t:"Columna o viga partida, con el hierro a la vista", ok:true},
+          {t:"Una mancha vieja en el piso", ok:false} ],
+    exp:"También: grieta con escalón, grieta que crece día a día, muro despegado del techo y grietas en el suelo o patio que se corre." },
+
+  { tipo:"img", pts:6,
+    q:"Usted ve esto en su casa. ¿En cuál foto NO se pone a medir: sale con su familia, se queda afuera y llama?",
+    ops:[ {img:"img/afec82.jpg", nota:"Fisura: resanar y vigilar"},
+          {img:"img/afec64.jpg", nota:"Fisuras superficiales: vigilar"},
+          {img:"img/afec37b.jpg", nota:"Techo que se rompe y se hunde: salga y llame"},
+          {img:"img/afec50.jpg", nota:"Raya poco profunda: vigilar"} ],
+    ok:2, exp:"Un techo que se hunde o se rompe es señal de peligro: salga, quédese afuera y llame al 123 o a Gestión del Riesgo." },
+
+  { tipo:"img", pts:6,
+    q:"El temblor muchas veces solo DESTAPA problemas. ¿Cuál daño venía de la falta de mantenimiento del techo?",
+    ops:[ {img:"img/afec81.jpg", nota:"Cielo raso caído por un techo de tapia sin mantenimiento"},
+          {img:"img/afec82.jpg", nota:"Fisura reciente en el revoque"},
+          {img:"img/afec64.jpg", nota:"Fisuras superficiales"},
+          {img:"img/afec50.jpg", nota:"Raya irregular poco profunda"} ],
+    ok:0, exp:"Aquí el cielo raso se cayó por falta de mantenimiento del techo. Decir la verdad sobre la causa define quién repara y qué ruta de apoyo aplica." },
+
+  { tipo:"multi", pts:8,
+    q:"¿Qué cuidados ayudan a que la casa aguante?",
+    ops:[ {t:"Marcar la grieta con lápiz, fecha y foto cada semana", ok:true},
+          {t:"Cortar el terreno para ampliar, sin asesoría", ok:false},
+          {t:"Mantener canoas y bajantes sanos para sacar el agua lluvia", ok:true},
+          {t:"Ampliar sin columnas para ahorrar", ok:false},
+          {t:"Cuidar el techo: tejas en su sitio y madera anclada", ok:true},
+          {t:"Preparar a la familia: agacharse, cubrirse y agarrarse", ok:true} ],
+    exp:"Seis cuidados: marcar la grieta, sacar el agua lluvia, cuidar el techo, no cortar el terreno sin asesoría, ampliar bien amarrado (con licencia y NSR-10) y preparar a la familia." },
+
+  { tipo:"multi", pts:8,
+    q:"Si llama a reportar un daño, ¿qué debe contar?",
+    ops:[ {t:"Nombre y un teléfono que conteste", ok:true},
+          {t:"Vereda o barrio, sector y cómo llegar", ok:true},
+          {t:"Qué ve y desde cuándo", ok:true},
+          {t:"El número de su cuenta bancaria", ok:false},
+          {t:"Si viven niños, adultos mayores o personas con discapacidad", ok:true},
+          {t:"Nada: la Alcaldía ya sabe todo", ok:false} ],
+    exp:"Además, fotos de cerca y de lejos. Con buenos datos se prioriza primero lo grave y donde vive población más vulnerable." }
 ];
 const TOTAL = PREGUNTAS.reduce((s,p)=>s+p.pts,0);
+const SEM = { v:["VERDE","Habitable"], n:["NARANJA","Uso restringido"], r:["ROJO","Crítico"] };
 const app = document.getElementById('app');
 const marcador = document.getElementById('marcador');
-let st = { i:0, puntos:0, nombre:"", resp:[] };
+let st;
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function setMarcador(){ marcador.textContent = st.puntos + " pts"; }
+const fmt = n => (Math.round(n*10)/10).toString().replace('.', ',');
+function setMarcador(){ marcador.textContent = fmt(st.puntos) + " pts"; }
 
 function inicio(){
   marcador.classList.add('oculto');
+  const nImg = PREGUNTAS.filter(p=>p.tipo!=='multi').length, nMul = PREGUNTAS.length - nImg;
   app.innerHTML = `
   <div class="card">
     <div class="kicker">Sismo del 10 de agosto de 2026</div>
     <h1>¿Sabe leer su casa después de un temblor?</h1>
     <img class="foto" src="img/p7.jpg" alt="Casa en Girardota">
-    <p>Son <b>8 preguntas</b> con fotos reales de las visitas en Girardota. Cada una vale puntos; en total puede sumar <b>${TOTAL} puntos</b>.</p>
+    <p>Cuestionario <b>individual</b> de <b>${PREGUNTAS.length} preguntas</b> con fotos reales de las visitas en Girardota:</p>
+    <ul style="margin:0 0 6px;padding-left:22px">
+      <li><b>${nImg}</b> de elegir <b>una</b> foto o color</li>
+      <li><b>${nMul}</b> de <b>selección múltiple</b> (marque todas las correctas)</li>
+    </ul>
+    <p style="margin:6px 0">En total puede sumar <b>${TOTAL} puntos</b>.</p>
     <div class="semaforo"><span style="background:var(--lima)"></span><span style="background:var(--naranja)"></span><span style="background:var(--rojo)"></span></div>
-    <label for="nom">Su nombre o el de su grupo (opcional)</label>
-    <input type="text" id="nom" maxlength="40" placeholder="Ej.: Grupo vereda San Diego">
+    <label class="f" for="nom">Su nombre completo *</label>
+    <input type="text" id="nom" maxlength="50" autocomplete="name" placeholder="Nombre y apellido">
+    <label class="f" for="ver">Vereda o barrio (opcional)</label>
+    <input type="text" id="ver" maxlength="40" placeholder="Ej.: San Andrés">
+    <div class="aviso" id="aviso"></div>
     <button class="btn" id="go">Empezar</button>
   </div>`;
   document.getElementById('go').onclick = () => {
-    st = { i:0, puntos:0, nombre:document.getElementById('nom').value.trim(), resp:[] };
+    const nombre = document.getElementById('nom').value.trim();
+    if (nombre.length < 3) { document.getElementById('aviso').textContent = "Escriba su nombre para empezar."; return; }
+    st = { i:0, puntos:0, nombre, vereda:document.getElementById('ver').value.trim(), resp:[] };
     marcador.classList.remove('oculto'); setMarcador(); pregunta();
   };
 }
 
-function pregunta(){
-  const p = PREGUNTAS[st.i];
-  app.innerHTML = `
-  <div class="bar"><i style="width:${st.i/PREGUNTAS.length*100}%"></i></div>
+function cabecera(p){
+  const tipos = { img:"Elija UNA foto", sem:"Elija UN color", multi:"Selección múltiple: marque TODAS las correctas" };
+  return `<div class="bar"><i style="width:${st.i/PREGUNTAS.length*100}%"></i></div>
   <div class="card">
     <div class="kicker">Pregunta ${st.i+1} de ${PREGUNTAS.length} <span class="valor">${p.pts} puntos</span></div>
-    <img class="foto${p.contain?' contain':''}" src="${p.img}" alt="${esc(p.pie)}">
-    <p class="pie">${esc(p.pie)}</p>
     <h2>${esc(p.q)}</h2>
-    <div class="ops">${p.ops.map((o,k)=>`<button class="op" data-k="${k}"><b>${"ABCD"[k]}</b><span>${esc(o)}</span></button>`).join('')}</div>
-    <div id="fb"></div>
-  </div>`;
-  app.querySelectorAll('.op').forEach(b => b.onclick = () => responder(+b.dataset.k));
+    <p class="tipo">${tipos[p.tipo]}</p>`;
+}
+
+function pregunta(){
+  const p = PREGUNTAS[st.i];
+  let cuerpo = "";
+  if (p.tipo === "img") {
+    cuerpo = `<div class="grid" id="opts">${p.ops.map((o,k)=>`
+      <button class="imgop" data-k="${k}"><img src="${o.img}" alt="Opción ${"ABCD"[k]}"><span class="letra">${"ABCD"[k]}</span><span class="nota">${esc(o.nota)}</span></button>`).join('')}</div>`;
+  } else if (p.tipo === "sem") {
+    cuerpo = `<img class="foto" src="${p.img}" alt="Foto de la visita">
+      <div class="sem">${Object.keys(SEM).map(c=>`<button class="semop ${c}" data-c="${c}"><div class="luz"></div>${SEM[c][0]}<small>${SEM[c][1]}</small></button>`).join('')}</div>`;
+  } else {
+    cuerpo = `<div class="ops">${p.ops.map((o,k)=>`
+      <label class="chk" data-k="${k}"><input type="checkbox" value="${k}"><span>${esc(o.t)}</span><span class="marca"></span></label>`).join('')}</div>
+      <button class="btn" id="calif" disabled>Calificar</button>`;
+  }
+  app.innerHTML = cabecera(p) + cuerpo + `<div id="fb"></div></div>`;
+
+  if (p.tipo === "img") app.querySelectorAll('.imgop').forEach(b => b.onclick = () => respUnica(+b.dataset.k));
+  if (p.tipo === "sem") app.querySelectorAll('.semop').forEach(b => b.onclick = () => respSem(b.dataset.c));
+  if (p.tipo === "multi") {
+    const cal = document.getElementById('calif');
+    app.querySelectorAll('.chk input').forEach(inp => inp.onchange = () => {
+      inp.parentElement.classList.toggle('sel', inp.checked);
+      cal.disabled = !app.querySelector('.chk input:checked');
+    });
+    cal.onclick = respMulti;
+  }
   window.scrollTo(0,0);
 }
 
-function responder(k){
-  const p = PREGUNTAS[st.i], bien = k === p.ok;
-  const btns = app.querySelectorAll('.op');
-  btns.forEach(b => b.disabled = true);
-  btns[p.ok].classList.add('ok');
-  if(!bien) btns[k].classList.add('mal');
-  if(bien) st.puntos += p.pts;
-  st.resp.push({ bien, pts: bien ? p.pts : 0 });
-  setMarcador();
+function cerrar(pts, titulo, bien){
+  const p = PREGUNTAS[st.i];
+  st.puntos += pts; st.resp.push({ pts }); setMarcador();
   const ultima = st.i === PREGUNTAS.length - 1;
   document.getElementById('fb').innerHTML = `
-    <div class="fb ${bien?'ok':'mal'}"><strong>${bien?`¡Correcto! +${p.pts} puntos`:'No era esa'}</strong>${esc(p.exp)}</div>
+    <div class="fb ${bien?'ok':'mal'}"><strong>${titulo}</strong>${esc(p.exp)}</div>
     <button class="btn" id="sig">${ultima?'Ver mi puntaje':'Siguiente'}</button>`;
   document.getElementById('sig').onclick = () => { st.i++; ultima ? final() : pregunta(); };
   document.getElementById('sig').scrollIntoView({behavior:'smooth', block:'end'});
+}
+
+function respUnica(k){
+  const p = PREGUNTAS[st.i], bien = k === p.ok;
+  const btns = app.querySelectorAll('.imgop');
+  btns.forEach(b => b.disabled = true);
+  btns[p.ok].classList.add('ok'); if (!bien) btns[k].classList.add('mal');
+  document.getElementById('opts').classList.add('revelado');
+  cerrar(bien ? p.pts : 0, bien ? `¡Correcto! +${p.pts} puntos` : `No era esa. La correcta es la ${"ABCD"[p.ok]}`, bien);
+}
+
+function respSem(c){
+  const p = PREGUNTAS[st.i], bien = c === p.ok;
+  app.querySelectorAll('.semop').forEach(b => { b.disabled = true;
+    if (b.dataset.c === p.ok) b.classList.add('ok'); else if (b.dataset.c === c) b.classList.add('mal'); });
+  cerrar(bien ? p.pts : 0, bien ? `¡Correcto! +${p.pts} puntos` : `No era ese color`, bien);
+}
+
+function respMulti(){
+  const p = PREGUNTAS[st.i];
+  const total = p.ops.filter(o=>o.ok).length;
+  let aciertos = 0, errores = 0;
+  app.querySelectorAll('.chk').forEach(l => {
+    const o = p.ops[+l.dataset.k], inp = l.querySelector('input'), m = l.querySelector('.marca');
+    inp.disabled = true; l.classList.remove('sel');
+    if (inp.checked && o.ok) { aciertos++; l.classList.add('ok'); m.textContent = "✔ bien"; }
+    else if (inp.checked && !o.ok) { errores++; l.classList.add('mal'); m.textContent = "✘ no va"; }
+    else if (!inp.checked && o.ok) { l.classList.add('falto'); m.textContent = "faltó"; }
+  });
+  document.getElementById('calif').remove();
+  // Cada correcta marcada suma; cada incorrecta marcada resta. Mínimo 0.
+  const pts = Math.max(0, aciertos - errores) / total * p.pts;
+  const completo = aciertos === total && errores === 0;
+  cerrar(pts, completo ? `¡Perfecto! +${p.pts} puntos` : `${aciertos} de ${total} correctas${errores?`, ${errores} de más`:''} · +${fmt(pts)} puntos`, completo);
 }
 
 function final(){
@@ -216,18 +357,20 @@ function final(){
   const nivel = pc >= .8 ? ['Experto en leer la casa','var(--verde)']
               : pc >= .5 ? ['Va por buen camino','var(--naranja)']
               : ['Repasemos juntos','var(--rojo)'];
-  const aciertos = st.resp.filter(r=>r.bien).length;
+  const ahora = new Date().toLocaleString('es-CO', { dateStyle:'medium', timeStyle:'short' });
   app.innerHTML = `
   <div class="bar"><i style="width:100%"></i></div>
   <div class="card">
-    <div class="kicker" style="text-align:center">${st.nombre ? esc(st.nombre) : 'Su resultado'}</div>
-    <div class="grande">${st.puntos}<small> / ${TOTAL}</small></div>
+    <div class="kicker" style="text-align:center">${esc(st.nombre)}${st.vereda ? ' · ' + esc(st.vereda) : ''}</div>
+    <div class="grande">${fmt(st.puntos)}<small> / ${TOTAL}</small></div>
     <div class="nivel" style="color:${nivel[1]}">${nivel[0]}</div>
-    <p style="text-align:center;margin:0">${aciertos} de ${PREGUNTAS.length} respuestas correctas</p>
+    <p class="hora">${ahora}</p>
     <p style="text-align:center;color:var(--gris);font-size:15px">Muestre esta pantalla al equipo de la Alcaldía.</p>
-    <ul class="resumen">${PREGUNTAS.map((p,j)=>`<li><span>${j+1}. ${esc(p.q.split('?')[0].slice(0,60))}…</span><span class="s" style="color:${st.resp[j].bien?'var(--verde)':'var(--rojo)'}">${st.resp[j].bien?'✔':'✘'} ${st.resp[j].pts}/${p.pts}</span></li>`).join('')}</ul>
-    <div class="fb ok" style="margin-top:16px"><strong>Recuerde</strong>Una grieta es un mensaje de la casa. Si ve señales de peligro, salga, quédese afuera y llame al 123.</div>
-    <button class="btn sec" id="otra">Volver a empezar</button>
+    <ul class="resumen">${PREGUNTAS.map((p,j)=>{ const r = st.resp[j].pts, c = r >= p.pts ? 'var(--verde)' : r > 0 ? 'var(--naranja)' : 'var(--rojo)';
+      return `<li><span>${j+1}. ${esc(p.q.length > 62 ? p.q.slice(0,60) + '…' : p.q)}</span><span class="s" style="color:${c}">${fmt(r)}/${p.pts}</span></li>`; }).join('')}</ul>
+    <img class="foto" src="img/p8.jpg" alt="Infografía Lectura de patologías en vivienda" style="object-fit:contain;max-height:none;margin-top:16px">
+    <div class="fb ok"><strong>Recuerde</strong>Una grieta es un mensaje de la casa. Si ve señales de peligro, salga, quédese afuera y llame al 123.</div>
+    <button class="btn sec" id="otra">Volver al inicio</button>
   </div>`;
   document.getElementById('otra').onclick = inicio;
   window.scrollTo(0,0);
@@ -240,7 +383,7 @@ function vistaQR(){
   <div class="card" style="text-align:center">
     <div class="kicker">Escanee con la cámara del celular</div>
     <h1 style="margin-bottom:0">¿Sabe leer su casa?</h1>
-    <p style="margin:6px 0 0">8 preguntas · ${TOTAL} puntos</p>
+    <p style="margin:6px 0 0">Cuestionario individual · ${PREGUNTAS.length} preguntas · ${TOTAL} puntos</p>
     <div id="qrbox"></div>
     <div class="url">${esc(url)}</div>
   </div>`;
